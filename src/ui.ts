@@ -75,12 +75,41 @@ class MessageFeed {
   }) {
     const sender_name_ele = document.createElement("div");
     const content_ele = document.createElement("pre");
+
+    const message_container = document.createElement("div");
     sender_name_ele.textContent =
       info.sender_name + " from " + info.stream + ">" + info.topic;
     content_ele.textContent = info.content;
-    this.feed_container.append(sender_name_ele, content_ele);
+    content_ele.style.whiteSpace = "pre-wrap";
+    content_ele.style.overflowWrap = "break-word";
+    message_container.append(sender_name_ele, content_ele);
+
+    // Add hover styling, IGNORE
+    message_container.style.transition =
+      "background-color 150ms ease, transform 150ms ease";
+
+    message_container.onmouseenter = () => {
+      message_container.style.backgroundColor = "#f3f4f6";
+      message_container.style.cursor = "pointer";
+      message_container.title = `Click to set ${info.stream}>${info.topic} as the recipient`;
+    };
+
+    message_container.onmouseleave = () => {
+      message_container.style.backgroundColor = "";
+      message_container.style.transform = "";
+    };
+
+    message_container.addEventListener("click", () => {
+      set_current_topic(info.topic);
+      set_current_stream(info.stream);
+      status_bar.refresh_status_text();
+      stream_topic_input.update_both(info.stream, info.topic);
+    });
+
+    this.feed_container.append(message_container);
   }
 }
+
 const message_feed: MessageFeed = new MessageFeed();
 const status_bar: StatusBar = new StatusBar();
 
@@ -105,28 +134,72 @@ export function show_composebox() {
   document.body.append(send_btn);
 }
 
-function show_stream_topic_inputs() {
-  const input_container = document.createElement("div");
-  const topic_input = document.createElement("input");
-  const stream_input = document.createElement("input");
-  topic_input.placeholder = "Enter topic";
-  stream_input.placeholder = "Enter stream";
-  topic_input.value = get_current_topic();
-  stream_input.value = get_current_stream();
+class StreamTopicInput {
+  input_container: HTMLDivElement;
+  topic_input_ele: HTMLInputElement;
+  stream_input_ele: HTMLInputElement;
 
-  topic_input.oninput = () => {
-    const topic = topic_input.value;
-    set_current_topic(topic);
-    status_bar.refresh_status_text();
-  };
+  constructor() {
+    this.input_container = this.create_input_container();
+    this.topic_input_ele = this.create_topic_input_ele();
+    this.stream_input_ele = this.create_stream_input_ele();
 
-  stream_input.oninput = () => {
-    const stream = stream_input.value;
-    set_current_stream(stream);
-    status_bar.refresh_status_text();
-  };
-  input_container.append(stream_input, topic_input);
-  document.body.append(input_container);
+    this.input_container.append(this.stream_input_ele, this.topic_input_ele);
+  }
+
+  render() {
+    document.body.append(this.input_container);
+  }
+
+  create_input_container() {
+    const input_container = document.createElement("div");
+    return input_container;
+  }
+
+  create_topic_input_ele() {
+    const topic_input = document.createElement("input");
+    topic_input.placeholder = "Enter topic";
+
+    topic_input.oninput = () => {
+      const topic = topic_input.value;
+      set_current_topic(topic);
+      status_bar.refresh_status_text();
+    };
+    return topic_input;
+  }
+
+  create_stream_input_ele() {
+    const stream_input = document.createElement("input");
+    stream_input.placeholder = "Enter stream";
+
+    stream_input.oninput = () => {
+      const stream = stream_input.value;
+      set_current_stream(stream);
+      status_bar.refresh_status_text();
+    };
+    return stream_input;
+  }
+
+  update_topic(topic: string) {
+    this.topic_input_ele.value = topic;
+  }
+
+  update_stream(stream: string) {
+    this.stream_input_ele.value = stream;
+  }
+
+  update_both(stream: string, topic: string) {
+    this.update_topic(topic);
+    this.update_stream(stream);
+  }
+}
+
+const stream_topic_input = new StreamTopicInput();
+
+function show_stream_topic_input() {
+  stream_topic_input.render();
+  // To get around module evaluation when importing this in `main.ts`
+  stream_topic_input.update_both(get_current_stream(), get_current_topic());
 }
 
 export function show_right_sidebar() {
@@ -177,6 +250,6 @@ export function render_everything() {
   status_bar.refresh_status_text();
   show_message_feed();
   show_composebox();
-  show_stream_topic_inputs();
+  show_stream_topic_input();
   show_right_sidebar();
 }
