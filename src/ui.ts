@@ -8,6 +8,7 @@ import {
   set_current_topic,
 } from "./main";
 import { admin_bots, self_creds, ZulipAccount } from "./secrets";
+import { get_user_details_by_email } from "./zulip_client";
 
 class StatusBar {
   status_text?: string;
@@ -206,34 +207,78 @@ export function show_right_sidebar() {
   const self = self_creds;
   const bots = [self, ...admin_bots];
   const right_sidebar = document.createElement("div");
-  const right_sidebar_styles: Partial<CSSStyleDeclaration> = {
+  Object.assign(right_sidebar.style, {
     position: "absolute",
     top: "0",
     right: "0",
     width: "20vw",
     height: "100%",
-    backgroundColor: "pink",
+    marginTop:"1rem",
+    backgroundColor: "slate",
     display: "flex",
     flexDirection: "column",
     gap: "0.3rem",
-  };
+  } satisfies Partial<CSSStyleDeclaration>);
 
-  Object.assign(right_sidebar.style, right_sidebar_styles);
+  document.body.append(right_sidebar);
 
   for (const bot of bots) {
-    right_sidebar.append(get_bot_button(bot));
+    const buddy_button = create_bot_button(bot);
+    right_sidebar.append(buddy_button);
+
+    // Fetch user details in background
+    get_user_details_by_email(bot.email)
+      .then((data) => {
+        if (data?.avatar_url) {
+          hydrate_bot_avatar(buddy_button, bot, data.avatar_url);
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to fetch user details for", bot.email, err);
+      });
   }
-  document.body.append(right_sidebar);
 }
 
-function get_bot_button(bot: ZulipAccount) {
+function create_bot_button(bot: ZulipAccount): HTMLButtonElement {
   const bot_button = document.createElement("button");
-  bot_button.innerText = bot.name;
+
+  bot_button.style.display = "flex";
+  bot_button.style.alignItems = "center";
+  bot_button.style.gap = "0.5rem";
+
+  const name_span = document.createElement("span");
+  name_span.innerText = bot.name;
+  bot_button.append(name_span);
+
   bot_button.addEventListener("click", () => {
     set_current_bot(bot);
     status_bar.refresh_status_text();
   });
+
   return bot_button;
+}
+
+function hydrate_bot_avatar(
+  button: HTMLButtonElement,
+  bot: ZulipAccount,
+  avatar_url: string
+) {
+  const img = document.createElement("img");
+
+  img.width = 24;
+  img.height = 24;
+  img.style.borderRadius = "50%";
+  img.style.objectFit = "cover";
+
+  img.onload = () => {
+    button.prepend(img);
+  };
+
+  img.onerror = () => {
+    console.warn("Failed to load avatar for", bot.name);
+  };
+
+  img.src = avatar_url;
 }
 
 export function add_new_message_to_message_feed(info: {

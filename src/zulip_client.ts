@@ -65,3 +65,11 @@ function process_events(events: any) {
     }
   }
 }
+
+export async function get_user_details_by_email(email:string){
+  const url = new URL(`/api/v1/users/${email}`, realm_data.url);
+  const response = await fetch(url, { headers: get_headers() });
+  const data = await response.json();
+  const {user} = data;
+  return user;
+}
