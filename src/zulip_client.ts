@@ -55,8 +55,6 @@ function process_events(events: any) {
         const content = message.content;
         const topic = message.subject;
         const stream = message.display_recipient;
-        console.log(message);
-        // if (topic !== "bot testing") continue;
         add_new_message_to_message_feed({
           sender_name,
           content,
@@ -64,8 +62,6 @@ function process_events(events: any) {
           stream,
         });
       }
-      console.log(event.message.content);
-      console.log(event.message);
     }
   }
 }
