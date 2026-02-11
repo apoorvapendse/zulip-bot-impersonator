@@ -1,5 +1,16 @@
 import * as zulip_client from "./zulip_client";
 
+function render_div_button(label: string): HTMLElement {
+    const div = document.createElement("div");
+    div.style.padding = "3px";
+
+    const button = document.createElement("button");
+    button.innerText = label;
+
+    div.append(button);
+    return div;
+}
+
 function render_topic_heading_count(count: number): HTMLElement {
     const div = document.createElement("div");
     div.innerText = `(${count})`;
@@ -224,17 +235,12 @@ class TopicUpButton {
     div: HTMLElement;
 
     constructor() {
-        const div = document.createElement("div");
-        div.style.padding = "3px";
-
-        const button = document.createElement("button");
-        button.innerText = "up";
-
-        div.append(button);
+        const div = render_div_button("prev topic");
 
         div.addEventListener("click", () => {
             CurrentSearchWidget.topic_up();
         });
+
 
         this.div = div;
     }
@@ -244,13 +250,7 @@ class TopicDownButton {
     div: HTMLElement;
 
     constructor() {
-        const div = document.createElement("div");
-        div.style.padding = "3px";
-
-        const button = document.createElement("button");
-        button.innerText = "down";
-
-        div.append(button);
+        const div = render_div_button("next topic");
 
         div.addEventListener("click", () => {
             CurrentSearchWidget.topic_down();
