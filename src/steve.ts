@@ -34,6 +34,10 @@ function render_topic_heading_count(count: number): HTMLElement {
 function render_th(label: string): HTMLElement {
     const th = document.createElement("th");
     th.innerText = label;
+    th.style.position = "sticky";
+    th.style.top = "0";
+    th.style.backgroundColor = "white";
+    th.style.zIndex = "999";
     th.style.textAlign = "left";
     th.style.fontWeight = "bold";
     th.style.color = "#000080";
@@ -199,10 +203,14 @@ class TopicList {
 
         const table = document.createElement("table");
 
+        const thead = document.createElement("thead");
+
         const tr = document.createElement("tr");
         tr.append(render_th("Count"));
         tr.append(render_th("Topic name"));
-        table.append(tr);
+        thead.append(tr);
+
+        const tbody = document.createElement("tbody");
 
         const max_recent = 50;
         const topics = CurrentTopicTable.get_topics(max_recent);
@@ -211,8 +219,11 @@ class TopicList {
             const topic = topics[i];
             const selected = i === this.selected_index;
             const topic_row = new TopicRow(topic, i, selected);
-            table.append(topic_row.tr);
+            tbody.append(topic_row.tr);
         }
+
+        table.append(thead);
+        table.append(tbody);
 
         div.innerHTML = "";
         div.append(table);
