@@ -31,6 +31,17 @@ function render_topic_heading_count(count: number): HTMLElement {
     return div;
 }
 
+function render_thead(headers: HTMLElement[]): HTMLElement {
+    const thead = document.createElement("thead");
+
+    const tr = document.createElement("tr");
+    tr.append(render_th("Count"));
+    tr.append(render_th("Topic name"));
+    thead.append(tr);
+
+    return thead;
+}
+
 function render_th(label: string): HTMLElement {
     const th = document.createElement("th");
     th.innerText = label;
@@ -203,12 +214,10 @@ class TopicList {
 
         const table = document.createElement("table");
 
-        const thead = document.createElement("thead");
-
-        const tr = document.createElement("tr");
-        tr.append(render_th("Count"));
-        tr.append(render_th("Topic name"));
-        thead.append(tr);
+        const thead = render_thead([
+            render_th("Count"),
+            render_th("Topic name"),
+        ]);
 
         const tbody = document.createElement("tbody");
 
