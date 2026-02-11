@@ -133,6 +133,49 @@ function render_message_content(content: string): HTMLElement {
 }
 
 /**************************************************
+ * cursor
+ *
+**************************************************/
+
+class Cursor {
+    selected_index?: number;
+    count: number;
+
+    constructor() {
+        this.count = 0;
+    }
+
+    is_selecting(index: number): boolean {
+        return this.selected_index === index;
+    }
+
+    set_count(count: number): void {
+        this.count = count;
+    }
+
+    clear(): void {
+        this.selected_index = undefined;
+    }
+
+    select_index(index: number) {
+        this.selected_index = index;
+    }
+
+    down(): void {
+        const count = this.count;
+        this.selected_index = ((this.selected_index ?? -1) + 1) % count;
+
+    }
+
+    up(): void {
+        if (this.selected_index === undefined || this.selected_index === 0) {
+            return;
+        }
+        this.selected_index -= 1;
+    }
+}
+
+/**************************************************
  * topic pane
  *
 **************************************************/
@@ -187,8 +230,8 @@ let CurrentTopicList: TopicList;
 
 class TopicList {
     div: HTMLElement;
-    selected_index?: number;
     topics: Topic[];
+    cursor: Cursor;
 
     constructor() {
         const div = document.createElement("div");
@@ -197,12 +240,13 @@ class TopicList {
         div.style.overflowY = "auto";
 
         this.topics = [];
+        this.cursor = new Cursor();
 
         this.div = div;
     }
 
     get_current_topic(): Topic | undefined {
-        const index = this.selected_index;
+        const index = this.cursor.selected_index;
 
         if (index === undefined) return undefined;
 
@@ -211,6 +255,7 @@ class TopicList {
 
     populate() {
         const div = this.div;
+        const cursor = this.cursor;
 
         const thead = render_thead([
             render_th("Count"),
@@ -221,10 +266,11 @@ class TopicList {
 
         const max_recent = 5000;
         const topics = CurrentTopicTable.get_topics(max_recent);
+        cursor.set_count(topics.length);
 
         for (let i = 0; i < topics.length; ++i) {
             const topic = topics[i];
-            const selected = i === this.selected_index;
+            const selected = cursor.is_selecting(i);
             const topic_row = new TopicRow(topic, i, selected);
             tbody.append(topic_row.tr);
         }
@@ -240,28 +286,22 @@ class TopicList {
     }
 
     select_index(index: number) {
-        this.selected_index = index;
+        this.cursor.select_index(index);
         this.populate();
     }
 
     clear_selection(): void {
-        this.selected_index = undefined;
+        this.cursor.clear();
         this.populate();
     }
 
     down(): void {
-        const count = this.topics.length;
-
-        this.selected_index = ((this.selected_index ?? -1) + 1) % count;
-
+        this.cursor.down();
         this.populate();
     }
 
     up(): void {
-        if (this.selected_index === undefined || this.selected_index === 0) {
-            return;
-        }
-        this.selected_index -= 1;
+        this.cursor.up();
         this.populate();
     }
 }
