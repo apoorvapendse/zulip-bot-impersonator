@@ -66,7 +66,7 @@ function process_events(events: any) {
   }
 }
 
-export async function get_messages_for_stream_id(stream_id: number) {
+export async function get_messages_for_stream_id(stream_id: number, num_before: number) {
     const url = new URL(`/api/v1/messages`, realm_data.url);
     const narrow = [
         {
@@ -75,7 +75,7 @@ export async function get_messages_for_stream_id(stream_id: number) {
         },
     ];
     url.searchParams.set("narrow", JSON.stringify(narrow));
-    url.searchParams.set("num_before", JSON.stringify(5000));
+    url.searchParams.set("num_before", JSON.stringify(num_before));
     url.searchParams.set("anchor", "newest");
     const response = await fetch(url, { headers: get_headers() });
     const data = await response.json();

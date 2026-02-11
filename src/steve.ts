@@ -1,19 +1,5 @@
 import * as zulip_client from "./zulip_client";
 
-const favorite_stream_name = "apoorva/showell projects";
-
-type RawMessage = {
-    id: number;
-    topic_name: string;
-};
-
-type RawStream = {
-    stream_id: number;
-    name: string;
-};
-
-let RawMessages: RawMessage[];
-
 function render_topic_count(count: number): HTMLElement {
     const div = document.createElement("div");
     div.innerText = `${count}`;
@@ -33,6 +19,17 @@ function render_topic_name(topic_name: string): HTMLElement {
     div.style.padding = "3px";
     div.style.color = "#000080";
     div.style.cursor = "pointer";
+
+    return div;
+}
+
+function render_topic_heading(topic_name: string): HTMLElement {
+    const div = document.createElement("div");
+    div.innerText = topic_name;
+    div.style.backgroundColor = "#000080";
+    div.style.padding = "4px";
+    div.style.color = "white";
+    div.style.fontSize = "19px";
 
     return div;
 }
@@ -80,7 +77,13 @@ class MessagePane {
     }
 
     set_topic_name(topic_name: string): void {
-        this.div.innerText = topic_name;
+        const div = this.div;
+
+        div.innerHTML = "";
+
+        div.append(render_topic_heading(topic_name));
+        const messages = CurrentMessageStore.message_for_topic_name(topic_name);
+        console.log(messages);
     }
 }
 
@@ -119,6 +122,21 @@ class SearchWidget {
  *
 **************************************************/
 
+const BATCH_SIZE = 1000;
+const favorite_stream_name = "apoorva/showell projects";
+
+type RawMessage = {
+    id: number;
+    topic_name: string;
+};
+
+type RawStream = {
+    stream_id: number;
+    name: string;
+};
+
+let RawMessages: RawMessage[];
+
 let CurrentMessageStore: MessageStore;
 
 class MessageStore {
@@ -127,6 +145,12 @@ class MessageStore {
     constructor(raw_messages: RawMessage[]) {
         console.log("building message store");
         this.raw_messages = raw_messages;
+    }
+
+    message_for_topic_name(topic_name: string) {
+        return this.raw_messages.filter((raw_message) => {
+            return raw_message.topic_name === topic_name;
+        });
     }
 }
 
@@ -258,7 +282,7 @@ export async function run() {
 
     const stream_id = await get_stream_id_for_favorite_stream();
 
-    const rows = await zulip_client.get_messages_for_stream_id(stream_id);
+    const rows = await zulip_client.get_messages_for_stream_id(stream_id, BATCH_SIZE);
     const raw_messages = rows.map((row: any) => {
         return {
             id: row.id,
