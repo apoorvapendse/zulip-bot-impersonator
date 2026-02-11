@@ -157,19 +157,33 @@ class TopicList {
     }
 }
 
+class MessageSender {
+    div: HTMLElement;
+
+    constructor(sender_id: number) {
+        const div = document.createElement("div");
+
+        const sender_name = get_user_name(sender_id);
+        div.append(render_sender(sender_name));
+
+        this.div = div;
+    }
+}
+
 class MessageRow {
     div: HTMLElement;
 
     constructor(message: RawMessage, sender_id: number | undefined) {
         const div = document.createElement("div");
 
+        div.style.paddingTop = "5px";
         div.style.marginBottom = "5px";
         div.style.borderBottom = "1px dotted #000080";
         div.style.maxWidth = "500px";
 
         if (sender_id) {
-            const sender_name = get_user_name(sender_id);
-            div.append(render_sender(sender_name));
+            const sender = new MessageSender(sender_id);
+            div.append(sender.div);
         }
 
         div.append(render_message_content(message.content));
