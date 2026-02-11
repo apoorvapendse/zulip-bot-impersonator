@@ -147,6 +147,14 @@ function render_message_content(content: string): HTMLElement {
     return div;
 }
 
+function render_big_list(): HTMLElement {
+    const div = document.createElement("div");
+    div.style.paddingRight = "5px";
+    div.style.maxHeight = "80vh";
+    div.style.overflowY = "auto";
+    return div;
+}
+
 /**************************************************
  * cursor
  *
@@ -238,10 +246,7 @@ class TopicList {
     cursor: Cursor;
 
     constructor() {
-        const div = document.createElement("div");
-        div.style.paddingRight = "5px";
-        div.style.maxHeight = "80vh";
-        div.style.overflowY = "auto";
+        const div = render_big_list();
 
         this.topics = [];
         this.cursor = new Cursor();
