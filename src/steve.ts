@@ -186,11 +186,8 @@ class TopicList {
     down(): void {
         const count = this.topics.length;
 
-        if (this.selected_index >= count + 1) {
-            return;
-        }
+        this.selected_index = ((this.selected_index ?? -1) + 1) % count;
 
-        this.selected_index = (this.selected_index ?? -1) + 1;
         this.populate();
     }
 
@@ -382,6 +379,7 @@ class MessagePane {
         const div = document.createElement("div");
 
         this.div = div;
+        this.populate();
     }
 
     populate(): void {
@@ -419,8 +417,8 @@ class SearchWidget {
         div.style.display = "flex";
         this.div = div;
 
-        this.message_pane = new MessagePane();
         this.topic_pane = new TopicPane();
+        this.message_pane = new MessagePane();
     }
 
     populate(): void {
@@ -482,6 +480,7 @@ type RawUser = {
 let UserMap = new Map<number, RawUser>();
 
 let RawMessages: RawMessage[];
+let RawStreams: RawStream[];
 
 let CurrentMessageStore: MessageStore;
 
@@ -581,7 +580,7 @@ class Page {
     }
 }
 
-export async function get_stream_id_for_favorite_stream(): Promise<number> {
+export async function get_streams(): Promise<RawStream[]> {
     const subscriptions = await zulip_client.get_subscriptions();
 
     const streams: RawStream[] = subscriptions.map((subscription: any) => {
@@ -591,7 +590,12 @@ export async function get_stream_id_for_favorite_stream(): Promise<number> {
         };
     });
 
-    const stream = streams.find((stream) => {
+    console.log(streams);
+    return streams;
+}
+
+function get_stream_id_for_favorite_stream(): number {
+    const stream = RawStreams.find((stream) => {
         return stream.name === favorite_stream_name;
     });
 
@@ -616,8 +620,9 @@ export async function run() {
     const ThePage = new Page();
 
     await get_users();
+    RawStreams = await get_streams();
 
-    const stream_id = await get_stream_id_for_favorite_stream();
+    const stream_id = get_stream_id_for_favorite_stream();
 
     const rows = await zulip_client.get_messages_for_stream_id(stream_id, BATCH_SIZE);
     const raw_messages = rows.map((row: any) => {
