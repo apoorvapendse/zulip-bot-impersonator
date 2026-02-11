@@ -471,33 +471,34 @@ class SearchWidget {
  *
 **************************************************/
 
-class TopicUpButton {
-    div: HTMLElement;
+function topic_up_button(): HTMLElement {
+    const div = render_div_button("prev topic");
 
-    constructor() {
-        const div = render_div_button("prev topic");
+    div.addEventListener("click", () => {
+        CurrentSearchWidget.topic_up();
+    });
 
-        div.addEventListener("click", () => {
-            CurrentSearchWidget.topic_up();
-        });
-
-
-        this.div = div;
-    }
+    return div;
 }
 
-class TopicDownButton {
-    div: HTMLElement;
+function topic_down_button() {
+    const div = render_div_button("next topic");
 
-    constructor() {
-        const div = render_div_button("next topic");
+    div.addEventListener("click", () => {
+        CurrentSearchWidget.topic_down();
+    });
 
-        div.addEventListener("click", () => {
-            CurrentSearchWidget.topic_down();
-        });
+    return div;
+}
 
-        this.div = div;
-    }
+function topic_clear_button() {
+    const div = render_div_button("clear topic");
+
+    div.addEventListener("click", () => {
+        CurrentSearchWidget.clear_topic();
+    });
+
+    return div;
 }
 
 class ButtonPanel {
@@ -509,13 +510,11 @@ class ButtonPanel {
         div.style.display = "flex";
         div.style.paddingBottom = "4px";
 
-        const topic_up_button = new TopicUpButton();
-        const topic_down_button = new TopicDownButton();
+        div.append(topic_up_button());
+        div.append(topic_down_button());
+        div.append(topic_clear_button());
 
-        div.append(topic_up_button.div);
-        div.append(topic_down_button.div);
-
-        this.first_button = topic_down_button.div.querySelector("button")!;
+        this.first_button = div.querySelectorAll("button")[1];
         this.div = div;
     }
 
