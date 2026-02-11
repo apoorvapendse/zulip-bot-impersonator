@@ -2,6 +2,7 @@ import { bot_phrases } from "./phrases";
 import { admin_bots, ZulipAccount } from "./secrets";
 import * as ui from "./ui";
 import * as zulip_client from "./zulip_client";
+import * as steve from "./steve";
 let current_bot: ZulipAccount = admin_bots[0];
 let current_topic: string = "bot testing";
 let current_stream: string = "zulip-bot-impersonator";
@@ -57,8 +58,11 @@ export async function send_bot_message(msg_content?: string) {
 }
 
 function gui() {
-  ui.render_everything();
+    ui.render_client();
 }
 
-gui();
-zulip_client.register_queue();
+// gui();
+// zulip_client.register_queue();
+
+
+steve.run();

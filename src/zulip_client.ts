@@ -66,6 +66,30 @@ function process_events(events: any) {
   }
 }
 
+export async function get_messages_for_stream_id(stream_id) {
+    const url = new URL(`/api/v1/messages`, realm_data.url);
+    const narrow = [
+        {
+            operator: "channel",
+            operand: stream_id,
+        },
+    ];
+    url.searchParams.set("narrow", JSON.stringify(narrow));
+    url.searchParams.set("num_before", 5000);
+    url.searchParams.set("anchor", "newest");
+    const response = await fetch(url, { headers: get_headers() });
+    const data = await response.json();
+    console.log("found oldest", data.found_oldest);
+    return data.messages;
+}
+
+export async function get_subscriptions() {
+  const url = new URL(`/api/v1/users/me/subscriptions`, realm_data.url);
+  const response = await fetch(url, { headers: get_headers() });
+  const data = await response.json();
+  return data.subscriptions;
+}
+
 export async function get_user_details_by_email(email:string){
   const url = new URL(`/api/v1/users/${email}`, realm_data.url);
   const response = await fetch(url, { headers: get_headers() });
