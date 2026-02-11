@@ -408,25 +408,31 @@ class SearchWidget {
     div: HTMLElement;
     message_pane: MessagePane;
     topic_pane: TopicPane;
+    button_panel: ButtonPanel;
 
     constructor() {
         const div = document.createElement("div");
         this.div = div;
 
+        this.button_panel = new ButtonPanel();
         this.topic_pane = new TopicPane();
         this.message_pane = new MessagePane();
     }
 
     populate(): void {
         const div = this.div;
+        const button_panel = this.button_panel;
 
         div.innerHTML = "";
 
-        const button_panel = new ButtonPanel();
         div.append(button_panel.div);
 
         const main_section = this.build_main_section();
         div.append(main_section);
+    }
+
+    start() {
+        this.button_panel.focus_first_button();
     }
 
     build_main_section(): HTMLElement {
@@ -496,6 +502,7 @@ class TopicDownButton {
 
 class ButtonPanel {
     div: HTMLElement;
+    first_button: HTMLElement;
 
     constructor() {
         const div = document.createElement("div");
@@ -508,7 +515,13 @@ class ButtonPanel {
         div.append(topic_up_button.div);
         div.append(topic_down_button.div);
 
+        this.first_button = topic_down_button.div.querySelector("button")!;
         this.div = div;
+    }
+
+    focus_first_button() {
+        console.log(this.first_button);
+        this.first_button.focus();
     }
 }
 
@@ -703,4 +716,5 @@ export async function run() {
     CurrentSearchWidget.populate();
 
     ThePage.populate(CurrentSearchWidget.div);
+    CurrentSearchWidget.start();
 }
