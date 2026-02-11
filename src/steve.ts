@@ -415,7 +415,7 @@ class MessageList {
     }
 }
 
-class TopicLine {
+class MessageTopicLine {
     div: HTMLElement;
 
     constructor(topic_name: string, topic_count: number) {
@@ -456,7 +456,7 @@ class MessagePane {
 
         div.innerHTML = "";
 
-        const topic_line = new TopicLine(topic.name, messages.length);
+        const topic_line = new MessageTopicLine(topic.name, messages.length);
 
         const message_list = new MessageList(messages);
 
