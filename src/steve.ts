@@ -183,9 +183,22 @@ class TopicList {
         this.populate();
     }
 
-    up(): void {
+    down(): void {
         const count = this.topics.length;
-        this.selected_index = ((this.selected_index ?? 0) - 1 + count) % count;
+
+        if (this.selected_index >= count + 1) {
+            return;
+        }
+
+        this.selected_index = (this.selected_index ?? -1) + 1;
+        this.populate();
+    }
+
+    up(): void {
+        if (this.selected_index === undefined || this.selected_index === 0) {
+            return;
+        }
+        this.selected_index -= 1;
         this.populate();
     }
 }
@@ -203,7 +216,27 @@ class TopicUpButton {
         div.append(button);
 
         div.addEventListener("click", () => {
-            CurrentSearchWidget.up();
+            CurrentSearchWidget.topic_up();
+        });
+
+        this.div = div;
+    }
+}
+
+class TopicDownButton {
+    div: HTMLElement;
+
+    constructor() {
+        const div = document.createElement("div");
+        div.style.padding = "3px";
+
+        const button = document.createElement("button");
+        button.innerText = "down";
+
+        div.append(button);
+
+        div.addEventListener("click", () => {
+            CurrentSearchWidget.topic_down();
         });
 
         this.div = div;
@@ -218,8 +251,10 @@ class TopicUpDownPanel {
         div.style.display = "flex";
 
         const up_button = new TopicUpButton();
+        const down_button = new TopicDownButton();
 
         div.append(up_button.div);
+        div.append(down_button.div);
 
         this.div = div;
     }
@@ -241,7 +276,6 @@ class TopicPane {
 
     populate() {
         const div = this.div;
-        const topic_list = this.topic_list;
 
         CurrentTopicList.populate();
 
@@ -408,8 +442,13 @@ class SearchWidget {
         this.message_pane.populate();
     }
 
-    up(): void {
+    topic_up(): void {
         CurrentTopicList.up();
+        this.message_pane.populate();
+    }
+
+    topic_down(): void {
+        CurrentTopicList.down();
         this.message_pane.populate();
     }
 }
