@@ -6,6 +6,17 @@ function render_div_button(label: string): HTMLElement {
 
     const button = document.createElement("button");
     button.innerText = label;
+    button.style.color = "white";
+    button.style.backgroundColor = "#000080";
+
+    button.addEventListener("focus", () => {
+        button.style.backgroundColor = "green";
+    });
+
+    button.addEventListener("blur", () => {
+        button.style.backgroundColor = "#000080";
+    });
+
 
     div.append(button);
     return div;
@@ -231,52 +242,6 @@ class TopicList {
     }
 }
 
-class TopicUpButton {
-    div: HTMLElement;
-
-    constructor() {
-        const div = render_div_button("prev topic");
-
-        div.addEventListener("click", () => {
-            CurrentSearchWidget.topic_up();
-        });
-
-
-        this.div = div;
-    }
-}
-
-class TopicDownButton {
-    div: HTMLElement;
-
-    constructor() {
-        const div = render_div_button("next topic");
-
-        div.addEventListener("click", () => {
-            CurrentSearchWidget.topic_down();
-        });
-
-        this.div = div;
-    }
-}
-
-class TopicUpDownPanel {
-    div: HTMLElement;
-
-    constructor() {
-        const div = document.createElement("div");
-        div.style.display = "flex";
-
-        const up_button = new TopicUpButton();
-        const down_button = new TopicDownButton();
-
-        div.append(up_button.div);
-        div.append(down_button.div);
-
-        this.div = div;
-    }
-}
-
 class TopicPane {
     div: HTMLElement;
 
@@ -296,11 +261,8 @@ class TopicPane {
 
         CurrentTopicList.populate();
 
-        const button_panel = new TopicUpDownPanel();
-
         div.innerHTML = "";
         div.append(render_stream_heading(favorite_stream_name));
-        div.append(button_panel.div);
         div.append(CurrentTopicList.div);
     }
 }
@@ -434,7 +396,6 @@ class SearchWidget {
 
     constructor() {
         const div = document.createElement("div");
-        div.style.display = "flex";
         this.div = div;
 
         this.topic_pane = new TopicPane();
@@ -446,8 +407,21 @@ class SearchWidget {
 
         div.innerHTML = "";
 
+        const button_panel = new ButtonPanel();
+        div.append(button_panel.div);
+
+        const main_section = this.build_main_section();
+        div.append(main_section);
+    }
+
+    build_main_section(): HTMLElement {
+        const div = document.createElement("div");
+        div.style.display = "flex";
+
         div.append(this.topic_pane.div);
         div.append(this.message_pane.div);
+
+        return div;
     }
 
     set_topic_name(index: number, topic_name: string): void {
@@ -470,6 +444,59 @@ class SearchWidget {
         this.message_pane.populate();
     }
 }
+
+/**************************************************
+ * buttons
+ *
+**************************************************/
+
+class TopicUpButton {
+    div: HTMLElement;
+
+    constructor() {
+        const div = render_div_button("prev topic");
+
+        div.addEventListener("click", () => {
+            CurrentSearchWidget.topic_up();
+        });
+
+
+        this.div = div;
+    }
+}
+
+class TopicDownButton {
+    div: HTMLElement;
+
+    constructor() {
+        const div = render_div_button("next topic");
+
+        div.addEventListener("click", () => {
+            CurrentSearchWidget.topic_down();
+        });
+
+        this.div = div;
+    }
+}
+
+class ButtonPanel {
+    div: HTMLElement;
+
+    constructor() {
+        const div = document.createElement("div");
+        div.style.display = "flex";
+        div.style.paddingBottom = "4px";
+
+        const topic_up_button = new TopicUpButton();
+        const topic_down_button = new TopicDownButton();
+
+        div.append(topic_up_button.div);
+        div.append(topic_down_button.div);
+
+        this.div = div;
+    }
+}
+
 
 /**************************************************
  * model code below, please!
@@ -587,8 +614,7 @@ class Page {
     constructor() {
         const div = document.createElement("div");
         div.innerText = "loading users and recent messages...";
-        div.style.marginTop = "30px";
-        div.style.marginLeft = "30px";
+        div.style.marginLeft = "15px";
         document.body.append(div);
 
         this.div = div;
