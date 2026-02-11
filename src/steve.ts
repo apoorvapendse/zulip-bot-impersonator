@@ -1,5 +1,7 @@
 import * as zulip_client from "./zulip_client";
 
+const favorite_stream_name = "apoorva/showell projects";
+
 type RawMessage = {
     id: number;
     topic_name: string;
@@ -16,7 +18,7 @@ function render_topic_count(count: number): HTMLElement {
     div.innerText = `${count}`;
     div.style.padding = "3px";
     div.style.marginRight = "3px";
-    div.style.width = "30px";
+    div.style.width = "20px";
     div.style.textAlign = "right";
 
     return div;
@@ -25,10 +27,28 @@ function render_topic_count(count: number): HTMLElement {
 function render_topic_name(topic_name: string): HTMLElement {
     const div = document.createElement("div");
     div.innerText = topic_name;
+    div.style.maxWidth = "270px";
+    div.style.overflowWrap = "break-word";
     div.style.padding = "3px";
     div.style.color = "#000080";
+    div.style.cursor = "pointer";
 
     return div;
+}
+
+class TopicRowName {
+    div: HTMLElement;
+
+    constructor(topic_name: string) {
+        const div = document.createElement("div");
+        div.append(render_topic_name(topic_name));
+
+        div.addEventListener("click", () => {
+            CurrentSearchWidget.set_topic_name(topic_name);
+        });
+
+        this.div = div;
+    }
 }
 
 class TopicRow {
@@ -39,10 +59,57 @@ class TopicRow {
 
         div.style.display = "flex";
 
+        const topic_row_name = new TopicRowName(topic.name);
+
         div.append(render_topic_count(topic.msg_count));
-        div.append(render_topic_name(topic.name));
+        div.append(topic_row_name.div);
 
         this.div = div;
+    }
+}
+
+class MessagePane {
+    div: HTMLElement;
+
+    constructor() {
+        const div = document.createElement("div");
+        div.innerText = "(no topic selected)";
+
+        this.div = div;
+    }
+
+    set_topic_name(topic_name: string): void {
+        this.div.innerText = topic_name;
+    }
+}
+
+let CurrentSearchWidget: SearchWidget;
+
+class SearchWidget {
+    div: HTMLElement;
+    message_pane: MessagePane;
+
+    constructor() {
+        const div = document.createElement("div");
+        div.style.display = "flex";
+        this.div = div;
+
+        this.message_pane = new MessagePane();
+    }
+
+    populate(): void {
+        const div = this.div;
+
+        div.innerHTML = "";
+        const topic_list = new TopicList();
+        topic_list.populate();
+
+        div.append(topic_list.div);
+        div.append(this.message_pane.div);
+    }
+
+    set_topic_name(topic_name: string): void {
+        this.message_pane.set_topic_name(topic_name);
     }
 }
 
@@ -53,8 +120,6 @@ class TopicList {
     constructor() {
         this.div = document.createElement("div");
         this.max_recent = 20;
-        this.div.style.marginTop = "30px";
-        this.div.style.marginLeft = "130px";
     }
 
     populate() {
@@ -132,13 +197,19 @@ class TopicTable {
     }
 }
 
+let ThePage: Page;
+
 class Page {
     div: HTMLElement;
 
     constructor() {
-        this.div = document.createElement("div");
-        this.div.innerText = "loading...";
-        document.body.append(this.div);
+        const div = document.createElement("div");
+        div.innerText = "loading recent messages...";
+        div.style.marginTop = "30px";
+        div.style.marginLeft = "30px";
+        document.body.append(div);
+
+        this.div = div;
     }
 
     populate(inner_div: HTMLElement) {
@@ -158,7 +229,7 @@ export async function get_stream_id_for_favorite_stream(): Promise<number> {
     });
 
     const stream = streams.find((stream) => {
-        return stream.name === "LynRummy (engineering)";
+        return stream.name === favorite_stream_name;
     });
 
     return stream!.stream_id;
@@ -167,7 +238,7 @@ export async function get_stream_id_for_favorite_stream(): Promise<number> {
 export async function run() {
     console.log("begin steve client");
 
-    const page = new Page();
+    const ThePage = new Page();
 
     const stream_id = await get_stream_id_for_favorite_stream();
 
@@ -181,8 +252,8 @@ export async function run() {
 
     CurrentTopicTable = new TopicTable(messages);
 
-    const topic_list = new TopicList();
-    topic_list.populate();
+    CurrentSearchWidget = new SearchWidget();
+    CurrentSearchWidget.populate();
 
-    page.populate(topic_list.div);
+    ThePage.populate(CurrentSearchWidget.div);
 }
