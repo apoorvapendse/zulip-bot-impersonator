@@ -113,19 +113,24 @@ class TopicRowName {
 }
 
 class TopicRow {
-    div: HTMLElement;
+    tr: HTMLElement;
 
     constructor(topic: Topic, index: number, selected: boolean) {
-        const div = document.createElement("div");
-
-        div.style.display = "flex";
 
         const topic_row_name = new TopicRowName(topic.name, index, selected);
 
-        div.append(render_topic_count(topic.msg_count));
-        div.append(topic_row_name.div);
+        const tr = document.createElement("tr");
 
-        this.div = div;
+        function append(div: HTMLElement) {
+            const td = document.createElement("td");
+            td.append(div);
+            tr.append(td);
+        }
+
+        append(render_topic_count(topic.msg_count));
+        append(topic_row_name.div);
+
+        this.tr = tr;
     }
 }
 
@@ -158,7 +163,7 @@ class TopicList {
     populate() {
         const div = this.div;
 
-        div.innerHTML = "";
+        const table = document.createElement("table");
 
         const max_recent = 50;
         const topics = CurrentTopicTable.get_topics(max_recent);
@@ -167,8 +172,11 @@ class TopicList {
             const topic = topics[i];
             const selected = i === this.selected_index;
             const topic_row = new TopicRow(topic, i, selected);
-            div.append(topic_row.div);
+            table.append(topic_row.tr);
         }
+
+        div.innerHTML = "";
+        div.append(table);
 
         this.topics = topics;
     }
