@@ -83,6 +83,13 @@ export async function get_messages_for_stream_id(stream_id: number, num_before: 
     return data.messages;
 }
 
+export async function get_users() {
+  const url = new URL(`/api/v1/users`, realm_data.url);
+  const response = await fetch(url, { headers: get_headers() });
+  const data = await response.json();
+  return data.members;
+}
+
 export async function get_subscriptions() {
   const url = new URL(`/api/v1/users/me/subscriptions`, realm_data.url);
   const response = await fetch(url, { headers: get_headers() });

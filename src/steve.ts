@@ -1,5 +1,14 @@
 import * as zulip_client from "./zulip_client";
 
+function render_topic_heading_count(count: number): HTMLElement {
+    const div = document.createElement("div");
+    div.innerText = `(${count})`;
+    div.style.padding = "3px";
+    div.style.marginLeft = "3px";
+
+    return div;
+}
+
 function render_topic_count(count: number): HTMLElement {
     const div = document.createElement("div");
     div.innerText = `${count}`;
@@ -17,8 +26,25 @@ function render_topic_name(topic_name: string): HTMLElement {
     div.style.maxWidth = "270px";
     div.style.overflowWrap = "break-word";
     div.style.padding = "3px";
+    div.style.marginBottom = "4px";
     div.style.color = "#000080";
     div.style.cursor = "pointer";
+
+    return div;
+}
+
+function render_stream_heading(name: string): HTMLElement {
+    const div = document.createElement("div");
+
+    const text_div = document.createElement("div");
+    text_div.innerText = name;
+    text_div.style.display = "inline-block";
+    text_div.style.paddingBottom = "4px";
+    text_div.style.marginBottom = "12px";
+    text_div.style.fontSize = "19px";
+    text_div.style.borderBottom = "1px solid black";
+
+    div.append(text_div)
 
     return div;
 }
@@ -26,9 +52,25 @@ function render_topic_name(topic_name: string): HTMLElement {
 function render_topic_heading(topic_name: string): HTMLElement {
     const div = document.createElement("div");
     div.innerText = topic_name;
-    div.style.padding = "4px";
+    div.style.color = "#000080";
     div.style.fontSize = "19px";
-    div.style.borderBottom = "1px solid black";
+
+    return div;
+}
+
+function render_sender(sender_name: string): HTMLElement {
+    const div = document.createElement("div");
+    div.innerText = sender_name + " said:";
+    div.style.fontWeight = "bold";
+    div.style.fontSize = "15px";
+    div.style.color = "#000080";
+    div.style.marginTop = "2px";
+    return div;
+}
+
+function render_message_content(content: string): HTMLElement {
+    const div = document.createElement("div");
+    div.innerHTML = content;
 
     return div;
 }
@@ -37,8 +79,7 @@ class TopicRowName {
     div: HTMLElement;
 
     constructor(topic_name: string, index: number, selected: boolean) {
-        const div = document.createElement("div");
-        div.append(render_topic_name(topic_name));
+        const div = render_topic_name(topic_name);
 
         div.addEventListener("click", () => {
             if (selected) {
@@ -47,6 +88,10 @@ class TopicRowName {
                 CurrentSearchWidget.set_topic_name(index, topic_name);
             }
         });
+
+        if (selected) {
+            div.style.backgroundColor = "cyan";
+        }
 
         this.div = div;
     }
@@ -59,10 +104,6 @@ class TopicRow {
         const div = document.createElement("div");
 
         div.style.display = "flex";
-
-        if (selected) {
-            div.style.backgroundColor = "cyan";
-        }
 
         const topic_row_name = new TopicRowName(topic.name, index, selected);
 
@@ -79,8 +120,12 @@ class TopicList {
     selected_index?: number;
 
     constructor() {
-        this.div = document.createElement("div");
+        const div = document.createElement("div");
         this.max_recent = 20;
+
+        div.style.marginRight = "15px";
+
+        this.div = div;
         this.populate();
     }
 
@@ -90,6 +135,8 @@ class TopicList {
         const div = this.div;
 
         div.innerHTML = "";
+
+        div.append(render_stream_heading(favorite_stream_name));
 
         for (let i = 0; i < topics.length; ++i) {
             const topic = topics[i];
@@ -107,6 +154,69 @@ class TopicList {
     clear_selection(): void {
         this.selected_index = undefined;
         this.populate();
+    }
+}
+
+class MessageRow {
+    div: HTMLElement;
+
+    constructor(message: RawMessage, sender_id: number | undefined) {
+        const div = document.createElement("div");
+
+        div.style.marginBottom = "5px";
+        div.style.borderBottom = "1px dotted #000080";
+        div.style.maxWidth = "500px";
+
+        if (sender_id) {
+            const sender_name = get_user_name(sender_id);
+            div.append(render_sender(sender_name));
+        }
+
+        div.append(render_message_content(message.content));
+
+        this.div = div;
+    }
+}
+
+class MessageList {
+    div: HTMLElement;
+
+    constructor(messages: RawMessage[]) {
+        const div = document.createElement("div");
+
+        let prev_sender_id: number | undefined;
+
+        for (const message of messages) {
+            let sender_id: number | undefined = message.sender_id;
+
+            if (sender_id === prev_sender_id) {
+                sender_id = undefined;
+            } else {
+                prev_sender_id = sender_id;
+            }
+
+            const row = new MessageRow(message, sender_id);
+            div.append(row.div);
+        }
+
+        this.div = div;
+    }
+}
+
+class TopicLine {
+    div: HTMLElement;
+
+    constructor(topic_name: string, topic_count: number) {
+        const div = document.createElement("div");
+        div.style.display = "flex";
+        div.style.borderBottom = "1px solid black";
+        div.style.paddingBottom = "6px";
+        div.style.marginBottom = "12px";
+
+        div.append(render_topic_heading(topic_name));
+        div.append(render_topic_heading_count(topic_count));
+
+        this.div = div;
     }
 }
 
@@ -129,11 +239,16 @@ class MessagePane {
     set_topic_name(topic_name: string): void {
         const div = this.div;
 
+        const messages = CurrentMessageStore.message_for_topic_name(topic_name);
+
         div.innerHTML = "";
 
-        div.append(render_topic_heading(topic_name));
-        const messages = CurrentMessageStore.message_for_topic_name(topic_name);
-        console.log(messages);
+        const topic_line = new TopicLine(topic_name, messages.length);
+
+        const message_list = new MessageList(messages);
+
+        div.append(topic_line.div);
+        div.append(message_list.div);
     }
 }
 
@@ -184,12 +299,21 @@ const favorite_stream_name = "apoorva/showell projects";
 type RawMessage = {
     id: number;
     topic_name: string;
+    sender_id: number;
+    content: string;
 };
 
 type RawStream = {
     stream_id: number;
     name: string;
 };
+
+type RawUser = {
+    id: number;
+    full_name: string;
+};
+
+let UserMap = new Map<number, RawUser>();
 
 let RawMessages: RawMessage[];
 
@@ -277,7 +401,7 @@ class Page {
 
     constructor() {
         const div = document.createElement("div");
-        div.innerText = "loading recent messages...";
+        div.innerText = "loading users and recent messages...";
         div.style.marginTop = "30px";
         div.style.marginLeft = "30px";
         document.body.append(div);
@@ -308,10 +432,36 @@ export async function get_stream_id_for_favorite_stream(): Promise<number> {
     return stream!.stream_id;
 }
 
-export async function run() {
-    console.log("begin steve client");
+function get_user_name(user_id: number): string {
+    const user = UserMap.get(user_id);
 
+    console.info(user_id);
+
+    if (!user) {
+        return "unknown user";
+    }
+
+    return user.full_name;
+}
+
+async function get_users(): Promise<void> {
+    const rows = await zulip_client.get_users();
+
+    for (const row of rows) {
+        const raw_user: RawUser = {
+            id: row.user_id,
+            full_name: row.full_name,
+        };
+
+        console.log(row);
+        UserMap.set(raw_user.id, raw_user);
+    }
+}
+
+export async function run() {
     const ThePage = new Page();
+
+    await get_users();
 
     const stream_id = await get_stream_id_for_favorite_stream();
 
@@ -320,6 +470,8 @@ export async function run() {
         return {
             id: row.id,
             topic_name: row.subject,
+            sender_id: row.sender_id,
+            content: row.content,
         };
     });
 
