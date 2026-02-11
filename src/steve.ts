@@ -58,13 +58,28 @@ function render_topic_heading(topic_name: string): HTMLElement {
     return div;
 }
 
-function render_sender(sender_name: string): HTMLElement {
+function render_sender_name(sender_name: string): HTMLElement {
     const div = document.createElement("div");
     div.innerText = sender_name + " said:";
     div.style.fontWeight = "bold";
     div.style.fontSize = "15px";
     div.style.color = "#000080";
     div.style.marginTop = "2px";
+    return div;
+}
+
+function render_avatar(avatar_url: string): HTMLElement {
+    const div = document.createElement("div");
+    const img = document.createElement("img");
+
+    img.width = 20;
+    img.height = 20;
+    img.style.objectFit = "cover";
+
+    img.src = avatar_url;
+
+    div.append(img);
+
     return div;
 }
 
@@ -162,9 +177,17 @@ class MessageSender {
 
     constructor(sender_id: number) {
         const div = document.createElement("div");
+        div.style.display = "flex";
 
-        const sender_name = get_user_name(sender_id);
-        div.append(render_sender(sender_name));
+        const user = UserMap.get(sender_id);
+
+        const avatar_url = user?.avatar_url;
+
+        if (avatar_url) {
+            div.append(render_avatar(avatar_url));
+        }
+
+        div.append(render_sender_name(user?.full_name ?? "unknown"));
 
         this.div = div;
     }
@@ -325,6 +348,7 @@ type RawStream = {
 type RawUser = {
     id: number;
     full_name: string;
+    avatar_url: string;
 };
 
 let UserMap = new Map<number, RawUser>();
@@ -446,18 +470,6 @@ export async function get_stream_id_for_favorite_stream(): Promise<number> {
     return stream!.stream_id;
 }
 
-function get_user_name(user_id: number): string {
-    const user = UserMap.get(user_id);
-
-    console.info(user_id);
-
-    if (!user) {
-        return "unknown user";
-    }
-
-    return user.full_name;
-}
-
 async function get_users(): Promise<void> {
     const rows = await zulip_client.get_users();
 
@@ -465,9 +477,9 @@ async function get_users(): Promise<void> {
         const raw_user: RawUser = {
             id: row.user_id,
             full_name: row.full_name,
+            avatar_url: row.avatar_url,
         };
 
-        console.log(row);
         UserMap.set(raw_user.id, raw_user);
     }
 }
