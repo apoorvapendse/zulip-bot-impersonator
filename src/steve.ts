@@ -1,8 +1,10 @@
 import * as model from "./model";
-import type {Stream, Topic} from "./model";
+import type {Stream} from "./model";
 import {Cursor} from "./cursor";
 import {MessagePane} from "./message_pane";
+import {render_list_heading, render_thead, render_th, render_tr, render_big_list} from "./render";
 import {config} from "./secrets";
+import {CurrentTopicList, TopicPane} from "./topic_pane";
 
 function render_div_button(label: string): HTMLElement {
     const div = document.createElement("div");
@@ -26,46 +28,6 @@ function render_div_button(label: string): HTMLElement {
     return div;
 }
 
-function render_thead(headers: HTMLElement[]): HTMLElement {
-    const thead = document.createElement("thead");
-
-    const tr = document.createElement("tr");
-    for (const th of headers) {
-        tr.append(th);
-    }
-    thead.append(tr);
-
-    return thead;
-}
-
-function render_th(label: string): HTMLElement {
-    const th = document.createElement("th");
-    th.innerText = label;
-    th.style.position = "sticky";
-    th.style.top = "0";
-    th.style.backgroundColor = "white";
-    th.style.zIndex = "999";
-    th.style.textAlign = "left";
-    th.style.fontWeight = "bold";
-    th.style.color = "#000080";
-    th.style.margin = "2px";
-    return th;
-}
-
-function render_tr(divs: HTMLElement[]): HTMLElement {
-    const tr = document.createElement("tr");
-
-    for (const div of divs) {
-        const td = document.createElement("td");
-        td.style.verticalAlign = "bottom";
-        td.style.padding = "4px";
-        td.append(div);
-        tr.append(td);
-    }
-
-    return tr;
-}
-
 function render_stream_count(count: number): HTMLElement {
     const div = document.createElement("div");
     div.innerText = `${count}`;
@@ -82,49 +44,6 @@ function render_stream_name(topic_name: string): HTMLElement {
     div.style.color = "#000080";
     div.style.cursor = "pointer";
 
-    return div;
-}
-
-function render_topic_count(count: number): HTMLElement {
-    const div = document.createElement("div");
-    div.innerText = `${count}`;
-    div.style.textAlign = "right";
-
-    return div;
-}
-
-function render_topic_name(topic_name: string): HTMLElement {
-    const div = document.createElement("div");
-    div.innerText = topic_name;
-    div.style.maxWidth = "270px";
-    div.style.overflowWrap = "break-word";
-    div.style.color = "#000080";
-    div.style.cursor = "pointer";
-
-    return div;
-}
-
-function render_stream_heading(name: string): HTMLElement {
-    const div = document.createElement("div");
-
-    const text_div = document.createElement("div");
-    text_div.innerText = name;
-    text_div.style.display = "inline-block";
-    text_div.style.paddingBottom = "4px";
-    text_div.style.marginBottom = "12px";
-    text_div.style.fontSize = "19px";
-    text_div.style.borderBottom = "1px solid black";
-
-    div.append(text_div)
-
-    return div;
-}
-
-function render_big_list(): HTMLElement {
-    const div = document.createElement("div");
-    div.style.paddingRight = "5px";
-    div.style.maxHeight = "80vh";
-    div.style.overflowY = "auto";
     return div;
 }
 
@@ -291,193 +210,8 @@ class StreamPane {
         CurrentStreamList.populate();
 
         div.innerHTML = "";
-        div.append(render_stream_heading("Channels"));
+        div.append(render_list_heading("Channels"));
         div.append(CurrentStreamList.div);
-    }
-}
-
-/**************************************************
- * topic pane
- *
-**************************************************/
-
-class TopicRowName {
-    div: HTMLElement;
-
-    constructor(topic_name: string, index: number, selected: boolean) {
-        const div = render_topic_name(topic_name);
-
-        div.addEventListener("click", () => {
-            if (selected) {
-                CurrentSearchWidget.clear_topic();
-            } else {
-                CurrentSearchWidget.set_topic_index(index);
-            }
-        });
-
-        if (selected) {
-            div.style.backgroundColor = "cyan";
-        }
-
-        this.div = div;
-    }
-}
-
-class TopicRow {
-    tr: HTMLElement;
-
-    constructor(topic: Topic, index: number, selected: boolean) {
-        const topic_row_name = new TopicRowName(topic.name, index, selected);
-
-        this.tr = render_tr([
-            render_topic_count(topic.msg_count),
-            topic_row_name.div,
-        ]);
-    }
-}
-
-let CurrentTopicList: TopicList;
-
-class TopicList {
-    div: HTMLElement;
-    topics: Topic[];
-    cursor: Cursor;
-    stream_id: number;
-
-    constructor(stream_id: number) {
-        const div = render_big_list();
-
-        this.stream_id = stream_id;
-
-        this.topics = [];
-        this.cursor = new Cursor();
-
-        this.div = div;
-    }
-
-    get_current_topic(): Topic | undefined {
-        const index = this.cursor.selected_index;
-
-        if (index === undefined) return undefined;
-
-        return this.topics[index];
-    }
-
-    make_thead(): HTMLElement {
-        const thead = render_thead([
-            render_th("Count"),
-            render_th("Topic name"),
-        ]);
-
-        return thead;
-    }
-
-    get_topics(): Topic[] {
-        const stream_id = this.stream_id!;
-        const cursor = this.cursor;
-
-        const max_recent = 5000;
-        const topics = model.get_recent_topics(stream_id, max_recent);
-
-        cursor.set_count(topics.length);
-
-        this.topics = topics;
-
-        return topics;
-    }
-
-
-    make_tbody(): HTMLElement {
-        const cursor = this.cursor;
-        const topics = this.get_topics();
-
-        const tbody = document.createElement("tbody");
-
-        for (let i = 0; i < topics.length; ++i) {
-            const topic = topics[i];
-            const selected = cursor.is_selecting(i);
-            const topic_row = new TopicRow(topic, i, selected);
-            tbody.append(topic_row.tr);
-        }
-
-        return tbody;
-    }
-
-    make_table(): HTMLElement {
-        const thead = this.make_thead();
-        const tbody = this.make_tbody();
-
-        const table = document.createElement("table");
-        table.append(thead);
-        table.append(tbody);
-
-        return table;
-    }
-
-    populate() {
-        const div = this.div;
-
-        if (this.stream_id === undefined) {
-            div.innerHTML = "(no channel set)";
-            return;
-        }
-
-        div.innerHTML = "";
-        div.append(this.make_table());
-    }
-
-    select_index(index: number) {
-        this.cursor.select_index(index);
-        this.populate();
-    }
-
-    clear_selection(): void {
-        this.cursor.clear();
-        this.populate();
-    }
-
-    down(): void {
-        this.cursor.down();
-        this.populate();
-    }
-
-    up(): void {
-        this.cursor.up();
-        this.populate();
-    }
-}
-
-class TopicPane {
-    div: HTMLElement;
-
-    constructor() {
-        const div = document.createElement("div");
-
-        div.style.marginRight = "45px";
-
-        this.div = div;
-
-        this.populate();
-    }
-
-    populate(): void {
-        const div = this.div;
-
-        const stream_id = CurrentStreamList.get_stream_id();
-
-        if (stream_id === undefined) {
-            div.innerHTML = "(no channel set)";
-            return;
-        }
-
-        CurrentTopicList = new TopicList(stream_id);
-        CurrentTopicList.populate();
-
-        const stream_name = model.stream_name_for(stream_id);
-
-        div.innerHTML = "";
-        div.append(render_stream_heading(stream_name));
-        div.append(CurrentTopicList.div);
     }
 }
 
@@ -496,12 +230,22 @@ class SearchWidget {
     button_panel: ButtonPanel;
 
     constructor() {
+        const self = this;
+
         const div = document.createElement("div");
+
         this.div = div;
 
         this.button_panel = new ButtonPanel();
         this.stream_pane = new StreamPane();
-        this.topic_pane = new TopicPane();
+        this.topic_pane = new TopicPane({
+            clear_topic(): void {
+                self.clear_topic();
+            },
+            set_topic_index(index: number): void {
+                self.set_topic_index(index);
+            },
+        });
         this.message_pane = new MessagePane();
     }
 
@@ -532,6 +276,11 @@ class SearchWidget {
         return div;
     }
 
+    populate_topic_pane(): void {
+        const stream_id = CurrentStreamList.get_stream_id();
+        this.topic_pane.populate(stream_id);
+    }
+
     populate_message_pane(): void {
         const topic = CurrentTopicList.get_current_topic();
         this.message_pane.populate(topic);
@@ -540,25 +289,25 @@ class SearchWidget {
 
     set_stream_index(index: number): void {
         CurrentStreamList.select_index(index);
-        this.topic_pane.populate();
+        this.populate_topic_pane();
         this.populate_message_pane();
     }
 
     clear_stream(): void {
         CurrentStreamList.clear_selection();
-        this.topic_pane.populate();
+        this.populate_topic_pane();
         this.populate_message_pane();
     }
 
     stream_up(): void {
         CurrentStreamList.up();
-        this.topic_pane.populate();
+        this.populate_topic_pane();
         this.populate_message_pane();
     }
 
     stream_down(): void {
         CurrentStreamList.down();
-        this.topic_pane.populate();
+        this.populate_topic_pane();
         this.populate_message_pane();
     }
 
