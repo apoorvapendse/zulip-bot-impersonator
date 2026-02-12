@@ -10,6 +10,11 @@ export type RawMessage = {
     content: string;
 };
 
+export type StreamInfo = {
+    num_messages: number;
+    stream: Stream;
+}
+
 export type Stream = {
     stream_id: number;
     name: string;
@@ -54,6 +59,15 @@ export class MessageStore {
     num_messages_for_stream_id(stream_id: number): number {
         return this.messages_for_stream(stream_id).length;
     }
+}
+
+export function get_streams(): StreamInfo[] {
+    return Streams.map((stream) => {
+        return {
+            num_messages: num_messages_for_stream(stream),
+            stream,
+        };
+    });
 }
 
 export class Topic {
@@ -131,7 +145,7 @@ export function messages_for_topic(topic: Topic): RawMessage[] {
     );
 }
 
-async function get_streams(): Promise<Stream[]> {
+async function fetch_streams(): Promise<Stream[]> {
     const subscriptions = await zulip_client.get_subscriptions();
 
     const streams: Stream[] = subscriptions.map((subscription: any) => {
@@ -179,13 +193,13 @@ async function get_raw_messages(): Promise<RawMessage[]> {
     });
 }
 
-export function num_messages_for_stream(stream: Stream): number {
+function num_messages_for_stream(stream: Stream): number {
     return CurrentMessageStore.num_messages_for_stream_id(stream.stream_id);
 }
 
 export async function fetch_model_data(): Promise<void> {
     await get_users();
-    Streams = await get_streams();
+    Streams = await fetch_streams();
 
     const raw_messages = await get_raw_messages();
 

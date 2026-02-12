@@ -1,4 +1,4 @@
-import type { Stream } from "./model";
+import type { Stream, StreamInfo } from "./model";
 
 import { Cursor } from "./cursor";
 import * as model from "./model";
@@ -63,11 +63,12 @@ class StreamRowName {
 class StreamRow {
     tr: HTMLElement;
 
-    constructor(stream: Stream, index: number, selected: boolean) {
+    constructor(stream_info: StreamInfo, index: number, selected: boolean) {
+        const stream = stream_info.stream;
         const stream_row_name = new StreamRowName(stream, index, selected);
 
         this.tr = render_tr([
-            render_stream_count(model.num_messages_for_stream(stream)),
+            render_stream_count(stream_info.num_messages),
             stream_row_name.div,
         ]);
     }
@@ -77,13 +78,13 @@ export let CurrentStreamList: StreamList;
 
 class StreamList {
     div: HTMLElement;
-    streams: Stream[];
+    stream_ids: number[];
     cursor: Cursor;
 
     constructor() {
         const div = render_big_list();
 
-        this.streams = [];
+        this.stream_ids = [];
         this.cursor = new Cursor();
 
         this.div = div;
@@ -98,7 +99,7 @@ class StreamList {
 
         if (index === undefined) return undefined;
 
-        return this.streams[index].stream_id;
+        return this.stream_ids[index];
     }
 
     make_thead(): HTMLElement {
@@ -107,16 +108,16 @@ class StreamList {
         return thead;
     }
 
-    get_streams(): Stream[] {
+    get_streams(): StreamInfo[] {
         const cursor = this.cursor;
 
-        const streams = model.Streams;
+        const stream_infos = model.get_streams();
 
-        cursor.set_count(streams.length);
+        cursor.set_count(stream_infos.length);
 
-        this.streams = streams;
+        this.stream_ids = stream_infos.map((stream_info) => stream_info.stream.stream_id);
 
-        return streams;
+        return stream_infos;
     }
 
     make_tbody(): HTMLElement {
