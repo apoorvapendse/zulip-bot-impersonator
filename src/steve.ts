@@ -1,4 +1,5 @@
-import * as zulip_client from "./zulip_client";
+import * as model from "./model";
+import type {RawMessage, Stream, Topic} from "./model";
 import {config} from "./secrets";
 
 function render_div_button(label: string): HTMLElement {
@@ -254,7 +255,7 @@ class StreamRow {
         const stream_row_name = new StreamRowName(stream, index, selected);
 
         this.tr = render_tr([
-            render_stream_count(CurrentMessageStore.num_messages_for_stream(stream.stream_id)),
+            render_stream_count(model.num_messages_for_stream(stream)),
             stream_row_name.div,
         ]);
     }
@@ -296,7 +297,7 @@ class StreamList {
     get_streams(): Stream[] {
         const cursor = this.cursor;
 
-        const streams = Streams;
+        const streams = model.Streams;
 
         cursor.set_count(streams.length);
 
@@ -467,7 +468,7 @@ class TopicList {
         const cursor = this.cursor;
 
         const max_recent = 5000;
-        const topics = CurrentTopicTable.get_topics(stream_id, max_recent);
+        const topics = model.get_recent_topics(stream_id, max_recent);
 
         cursor.set_count(topics.length);
 
@@ -563,7 +564,7 @@ class TopicPane {
         CurrentTopicList = new TopicList(stream_id);
         CurrentTopicList.populate();
 
-        const stream_name = stream_name_for(stream_id);
+        const stream_name = model.stream_name_for(stream_id);
 
         div.innerHTML = "";
         div.append(render_stream_heading(stream_name));
@@ -583,7 +584,7 @@ class MessageSender {
         const div = document.createElement("div");
         div.style.display = "flex";
 
-        const user = UserMap.get(sender_id);
+        const user = model.UserMap.get(sender_id);
 
         const avatar_url = user?.avatar_url;
 
@@ -689,7 +690,7 @@ class MessagePane {
             return;
         }
 
-        const messages = CurrentMessageStore.message_for_topic_name(stream_id, topic.name);
+        const messages = model.messages_for_topic(topic);
 
         div.innerHTML = "";
 
@@ -891,130 +892,6 @@ class ButtonPanel {
 }
 
 
-/**************************************************
- * model code below, please!
- *
-**************************************************/
-
-const BATCH_SIZE = 5000;
-
-type RawMessage = {
-    id: number;
-    sender_id: number;
-    stream_id: number;
-    topic_name: string;
-    content: string;
-};
-
-type Stream = {
-    stream_id: number;
-    name: string;
-};
-
-type RawUser = {
-    id: number;
-    full_name: string;
-    avatar_url: string;
-};
-
-let UserMap = new Map<number, RawUser>();
-
-let RawMessages: RawMessage[];
-let Streams: Stream[];
-
-let CurrentMessageStore: MessageStore;
-
-class MessageStore {
-    raw_messages: RawMessage[];
-
-    constructor(raw_messages: RawMessage[]) {
-        console.log("building message store");
-        this.raw_messages = raw_messages;
-    }
-
-    message_for_topic_name(stream_id: number, topic_name: string) {
-        return this.raw_messages.filter((raw_message) => {
-            return raw_message.stream_id === stream_id && raw_message.topic_name === topic_name;
-        });
-    }
-
-    messages_for_stream(stream_id: number): RawMessage[] {
-        return this.raw_messages.filter((raw_message) => {
-            return raw_message.stream_id === stream_id;
-        });
-    }
-
-    num_messages_for_stream(stream_id: number): number {
-        return this.messages_for_stream(stream_id).length;
-    }
-}
-
-class Topic {
-    stream_id: number;
-    name: string;
-    last_msg_id: number;
-    msg_count: number
-
-    constructor(stream_id: number, name: string) {
-        this.stream_id = stream_id;
-        this.name = name;
-        this.msg_count = 0;
-        this.last_msg_id = -1;
-    }
-
-    update_last_message(msg_id: number): void {
-        if (msg_id > this.last_msg_id)  {
-            this.last_msg_id = msg_id;
-        }
-        this.msg_count += 1;
-    }
-}
-
-let CurrentTopicTable: TopicTable;
-
-class TopicTable {
-    map: Map<string, Topic>;
-
-    constructor() {
-        this.map = new Map<string, Topic>();
-
-        for (const message of CurrentMessageStore.raw_messages) {
-            const stream_id = message.stream_id;
-            const topic_name = message.topic_name;
-            const msg_id = message.id;
-
-            const topic = this.get_or_create(stream_id, topic_name);
-
-            topic.update_last_message(msg_id);
-        }
-    }
-
-    get_or_create(stream_id: number, topic_name: string): Topic {
-        const map = this.map;
-        const topic_key = `${stream_id},${topic_name}`;
-        const topic = map.get(topic_key);
-
-        if (topic !== undefined) return topic;
-
-        const new_topic = new Topic(stream_id, topic_name);
-        map.set(topic_key, new_topic);
-
-        return new_topic;
-    }
-
-    get_topics(stream_id: number, max_recent: number) {
-        const all_topics = [...this.map.values()];
-        all_topics.sort((t1, t2) => t2.last_msg_id - t1.last_msg_id);
-
-        const stream_topics = all_topics.filter((topic) => topic.stream_id === stream_id);
-
-        const topics = stream_topics.slice(0, max_recent);
-
-        topics.sort((t1, t2) => t1.name.localeCompare(t2.name));
-        return topics;
-    }
-}
-
 let ThePage: Page;
 
 class Page {
@@ -1035,75 +912,13 @@ class Page {
     }
 }
 
-export async function get_streams(): Promise<Stream[]> {
-    const subscriptions = await zulip_client.get_subscriptions();
-
-    const streams: Stream[] = subscriptions.map((subscription: any) => {
-        return {
-            stream_id: subscription.stream_id,
-            name: subscription.name,
-        };
-    });
-
-    console.log(streams);
-    return streams;
-}
-
-function stream_name_for(stream_id: number): string {
-    const stream = Streams.find((stream) => {
-        return stream.stream_id === stream_id;
-    });
-
-    return stream!.name;
-}
-
-async function get_users(): Promise<void> {
-    const rows = await zulip_client.get_users();
-
-    for (const row of rows) {
-        const raw_user: RawUser = {
-            id: row.user_id,
-            full_name: row.full_name,
-            avatar_url: row.avatar_url,
-        };
-
-        UserMap.set(raw_user.id, raw_user);
-    }
-}
-
-async function get_raw_messages(): Promise<RawMessage[]> {
-    const rows = await zulip_client.get_messages(BATCH_SIZE);
-    return rows.map((row: any) => {
-        return {
-            id: row.id,
-            sender_id: row.sender_id,
-            topic_name: row.subject,
-            stream_id: row.stream_id,
-            content: row.content,
-        };
-    });
-}
-
-async function fetch_model_data(): Promise<void> {
-    await get_users();
-    Streams = await get_streams();
-
-    const raw_messages = await get_raw_messages();
-
-    CurrentMessageStore = new MessageStore(raw_messages);
-    console.log("we have messages");
-
-    CurrentTopicTable = new TopicTable();
-    console.log("we have a model");
-}
-
 export async function run() {
     document.title = config.nickname;
 
     // do before fetching to get "spinner"
     const ThePage = new Page();
 
-    await fetch_model_data();
+    await model.fetch_model_data();
 
     CurrentSearchWidget = new SearchWidget();
     CurrentSearchWidget.populate();
