@@ -507,7 +507,7 @@ class TopicList {
         const div = this.div;
 
         if (this.stream_id === undefined) {
-            div.innerHTML = "no channel set";
+            div.innerHTML = "(no channel set)";
             return;
         }
 
@@ -555,7 +555,7 @@ class TopicPane {
         const stream_id = CurrentStreamList.get_stream_id();
 
         if (stream_id === undefined) {
-            div.innerHTML = "no stream set";
+            div.innerHTML = "(no channel set)";
             return;
         }
 
@@ -764,6 +764,18 @@ class SearchWidget {
         this.message_pane.populate();
     }
 
+    stream_up(): void {
+        CurrentStreamList.up();
+        this.topic_pane.populate();
+        this.message_pane.populate();
+    }
+
+    stream_down(): void {
+        CurrentStreamList.down();
+        this.topic_pane.populate();
+        this.message_pane.populate();
+    }
+
     set_topic_index(index: number): void {
         CurrentTopicList.select_index(index);
         this.message_pane.populate();
@@ -789,6 +801,36 @@ class SearchWidget {
  * buttons
  *
 **************************************************/
+
+function stream_up_button(): HTMLElement {
+    const div = render_div_button("prev channel");
+
+    div.addEventListener("click", () => {
+        CurrentSearchWidget.stream_up();
+    });
+
+    return div;
+}
+
+function stream_down_button(): HTMLElement {
+    const div = render_div_button("next channel");
+
+    div.addEventListener("click", () => {
+        CurrentSearchWidget.stream_down();
+    });
+
+    return div;
+}
+
+function stream_clear_button() {
+    const div = render_div_button("clear channel");
+
+    div.addEventListener("click", () => {
+        CurrentSearchWidget.clear_stream();
+    });
+
+    return div;
+}
 
 function topic_up_button(): HTMLElement {
     const div = render_div_button("prev topic");
@@ -828,6 +870,10 @@ class ButtonPanel {
         const div = document.createElement("div");
         div.style.display = "flex";
         div.style.paddingBottom = "4px";
+
+        div.append(stream_up_button());
+        div.append(stream_down_button());
+        div.append(stream_clear_button());
 
         div.append(topic_up_button());
         div.append(topic_down_button());
