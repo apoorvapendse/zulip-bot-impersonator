@@ -1072,7 +1072,6 @@ async function get_users(): Promise<void> {
 }
 
 async function get_raw_messages(): Promise<RawMessage[]> {
-    console.log("get_raw_messages");
     const rows = await zulip_client.get_messages(BATCH_SIZE);
     return rows.map((row: any) => {
         return {
@@ -1085,19 +1084,26 @@ async function get_raw_messages(): Promise<RawMessage[]> {
     });
 }
 
-export async function run() {
-    document.title = config.nickname;
-
-    const ThePage = new Page();
-
+async function fetch_model_data(): Promise<void> {
     await get_users();
     Streams = await get_streams();
 
     const raw_messages = await get_raw_messages();
 
     CurrentMessageStore = new MessageStore(raw_messages);
+    console.log("we have messages");
 
     CurrentTopicTable = new TopicTable();
+    console.log("we have a model");
+}
+
+export async function run() {
+    document.title = config.nickname;
+
+    // do before fetching to get "spinner"
+    const ThePage = new Page();
+
+    await fetch_model_data();
 
     CurrentSearchWidget = new SearchWidget();
     CurrentSearchWidget.populate();
