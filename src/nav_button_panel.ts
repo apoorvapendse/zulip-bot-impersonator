@@ -45,6 +45,16 @@ class Button {
         button.addEventListener("click", () => {
             callback();
         });
+
+        this.hide();
+    }
+
+    show_if(cond: boolean): void {
+        if (cond) {
+            this.show();
+        } else {
+            this.hide();
+        }
     }
 
     show(): void {
@@ -105,19 +115,22 @@ export class ButtonPanel {
         this.div = div;
     }
 
-    update(stream_selected: boolean): void {
-        console.log("stream_selected", stream_selected);
-        if (stream_selected) {
-            this.clear_channel.show();
-            this.next_topic.show();
-            this.prev_topic.show();
-            this.clear_topic.show();
-        } else {
-            this.clear_channel.hide();
-            this.next_topic.hide();
-            this.prev_topic.hide();
-            this.clear_topic.hide();
-        }
+    update(stream_selected: boolean, topic_selected: boolean): void {
+        console.log(stream_selected, topic_selected);
+        this.next_channel.show_if(true);
+        this.prev_channel.show_if(stream_selected);
+        this.clear_channel.show_if(stream_selected);
+        this.next_topic.show_if(stream_selected);
+        this.prev_topic.show_if(topic_selected);
+        this.clear_topic.show_if(topic_selected);
+    }
+
+    focus_next_channel_button(): void {
+        this.next_channel.focus();
+    }
+
+    focus_next_topic_button(): void {
+        this.next_topic.focus();
     }
 
     start(): void {

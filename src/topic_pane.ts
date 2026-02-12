@@ -90,6 +90,10 @@ class TopicList {
         this.div = div;
     }
 
+    has_selection(): boolean {
+        return this.cursor.has_selection();
+    }
+
     get_current_topic(): Topic | undefined {
         const index = this.cursor.selected_index;
 
@@ -192,6 +196,13 @@ export class TopicPane {
         div.style.marginRight = "45px";
 
         this.div = div;
+    }
+
+    topic_selected(): boolean {
+        if (CurrentTopicList === undefined) {
+            return false;
+        }
+        return CurrentTopicList.has_selection();
     }
 
     populate(stream_id: number | undefined): void {

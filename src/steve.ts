@@ -92,6 +92,10 @@ class SearchWidget {
         this.button_panel.start();
     }
 
+    topic_selected(): boolean {
+        return this.topic_pane.topic_selected();
+    }
+
     stream_selected(): boolean {
         return this.stream_pane.stream_selected();
     }
@@ -118,7 +122,7 @@ class SearchWidget {
     }
 
     update_button_panel(): void {
-        this.button_panel.update(this.stream_selected());
+        this.button_panel.update(this.stream_selected(), this.topic_selected());
     }
 
     set_stream_index(index: number): void {
@@ -133,6 +137,7 @@ class SearchWidget {
         this.populate_topic_pane();
         this.populate_message_pane();
         this.update_button_panel();
+        this.button_panel.focus_next_channel_button();
     }
 
     stream_up(): void {
@@ -159,6 +164,7 @@ class SearchWidget {
         CurrentTopicList.clear_selection();
         this.populate_message_pane();
         this.update_button_panel();
+        this.button_panel.focus_next_topic_button();
     }
 
     topic_up(): void {
@@ -181,7 +187,7 @@ class Page {
 
     constructor() {
         const div = document.createElement("div");
-        div.innerText = "loading users and recent messages...";
+        div.innerText = "Welcome to Zulip! loading users and recent messages...";
         div.style.marginLeft = "15px";
         document.body.append(div);
 
