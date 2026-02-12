@@ -26,6 +26,12 @@ export class Cursor {
         this.selected_index = index;
     }
 
+    first(): void {
+        if (this.count > 0) {
+            this.selected_index = 0;
+        }
+    }
+
     down(): void {
         const count = this.count;
         this.selected_index = ((this.selected_index ?? -1) + 1) % count;

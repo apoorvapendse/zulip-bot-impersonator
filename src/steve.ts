@@ -44,6 +44,9 @@ class SearchWidget {
             surf_channels(): void {
                 self.surf_channels();
             },
+            surf_topics(): void {
+                self.surf_topics();
+            },
             topic_up(): void {
                 self.topic_up();
             },
@@ -190,6 +193,13 @@ class SearchWidget {
         this.show_channels();
     }
 
+    surf_topics(): void {
+        CurrentTopicList.surf();
+        this.populate_message_pane();
+        this.update_button_panel();
+        this.hide_channels();
+    }
+
     topic_up(): void {
         CurrentTopicList.up();
         this.populate_message_pane();
@@ -200,7 +210,6 @@ class SearchWidget {
         CurrentTopicList.down();
         this.populate_message_pane();
         this.update_button_panel();
-        this.hide_channels();
     }
 }
 

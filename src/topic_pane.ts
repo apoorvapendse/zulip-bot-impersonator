@@ -175,6 +175,11 @@ class TopicList {
         this.populate();
     }
 
+    surf(): void {
+        this.cursor.first();
+        this.populate();
+    }
+
     down(): void {
         this.cursor.down();
         this.populate();
