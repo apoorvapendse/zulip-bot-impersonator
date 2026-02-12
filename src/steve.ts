@@ -41,8 +41,8 @@ class SearchWidget {
             stream_down(): void {
                 self.stream_down();
             },
-            clear_topic(): void {
-                self.clear_topic();
+            surf_channels(): void {
+                self.surf_channels();
             },
             topic_up(): void {
                 self.topic_up();
@@ -62,8 +62,8 @@ class SearchWidget {
         });
 
         this.topic_pane = new TopicPane({
-            clear_topic(): void {
-                self.clear_topic();
+            surf_channels(): void {
+                self.surf_channels();
             },
             set_topic_index(index: number): void {
                 self.set_topic_index(index);
@@ -73,6 +73,7 @@ class SearchWidget {
         this.message_pane = new MessagePane();
 
         this.main_section = this.build_main_section();
+        this.show_channels();
     }
 
     populate(): void {
@@ -102,12 +103,15 @@ class SearchWidget {
     build_main_section(): HTMLElement {
         const div = document.createElement("div");
         div.style.display = "flex";
+        return div;
+    }
+
+    show_only_channels(): void {
+        const div = this.main_section;
+
+        div.innerHTML = "";
 
         div.append(this.stream_pane.div);
-        div.append(this.topic_pane.div);
-        div.append(this.message_pane.div);
-
-        return div;
     }
 
     show_channels(): void {
@@ -117,7 +121,6 @@ class SearchWidget {
 
         div.append(this.stream_pane.div);
         div.append(this.topic_pane.div);
-        div.append(this.message_pane.div);
     }
 
     hide_channels(): void {
@@ -146,14 +149,14 @@ class SearchWidget {
     set_stream_index(index: number): void {
         CurrentStreamList.select_index(index);
         this.populate_topic_pane();
-        this.populate_message_pane();
         this.update_button_panel();
+        this.show_channels();
+        this.button_panel.focus_next_topic_button();
     }
 
     clear_stream(): void {
         CurrentStreamList.clear_selection();
-        this.populate_topic_pane();
-        this.populate_message_pane();
+        this.show_only_channels();
         this.update_button_panel();
         this.button_panel.focus_next_channel_button();
     }
@@ -179,7 +182,7 @@ class SearchWidget {
         this.hide_channels();
     }
 
-    clear_topic(): void {
+    surf_channels(): void {
         CurrentTopicList.clear_selection();
         this.populate_message_pane();
         this.update_button_panel();

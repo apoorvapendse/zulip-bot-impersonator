@@ -1,7 +1,7 @@
 type CallbackType = {
     stream_up(): void;
     stream_down(): void;
-    clear_topic(): void;
+    surf_channels(): void;
     topic_up(): void;
     topic_down(): void;
 };
@@ -72,7 +72,7 @@ export class ButtonPanel {
     prev_channel: Button;
     next_topic: Button;
     prev_topic: Button;
-    clear_topic: Button;
+    surf_channels: Button;
 
     constructor(callbacks: CallbackType) {
         const div = document.createElement("div");
@@ -92,14 +92,14 @@ export class ButtonPanel {
         this.prev_topic = new Button("prev topic", () => {
             callbacks.topic_up();
         });
-        this.clear_topic = new Button("clear topic", () => {
-            callbacks.clear_topic();
+        this.surf_channels = new Button("surf channels", () => {
+            callbacks.surf_channels();
         });
 
         div.append(this.next_channel.div);
         div.append(this.prev_channel.div);
 
-        div.append(this.clear_topic.div);
+        div.append(this.surf_channels.div);
         div.append(this.next_topic.div);
         div.append(this.prev_topic.div);
 
@@ -116,9 +116,11 @@ export class ButtonPanel {
                 button.hide();
             }
         }
+
         show_if(this.next_channel, !topic_selected);
         show_if(this.prev_channel, !topic_selected && stream_selected);
-        show_if(this.clear_topic, topic_selected);
+
+        show_if(this.surf_channels, topic_selected);
         show_if(this.next_topic, stream_selected);
         show_if(this.prev_topic, topic_selected);
     }

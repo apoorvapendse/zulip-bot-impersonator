@@ -13,7 +13,7 @@ import {
 let Callbacks: CallbackType;
 
 type CallbackType = {
-    clear_topic(): void;
+    surf_channels(): void;
     set_topic_index(index: number): void;
 };
 
@@ -44,7 +44,7 @@ class TopicRowName {
 
         div.addEventListener("click", () => {
             if (selected) {
-                Callbacks.clear_topic();
+                Callbacks.surf_channels();
             } else {
                 Callbacks.set_topic_index(index);
             }
