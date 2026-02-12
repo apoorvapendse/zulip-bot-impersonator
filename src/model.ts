@@ -38,7 +38,10 @@ export class MessageStore {
 
     messages_for_topic_name(stream_id: number, topic_name: string) {
         return this.raw_messages.filter((raw_message) => {
-            return raw_message.stream_id === stream_id && raw_message.topic_name === topic_name;
+            return (
+                raw_message.stream_id === stream_id &&
+                raw_message.topic_name === topic_name
+            );
         });
     }
 
@@ -57,7 +60,7 @@ export class Topic {
     stream_id: number;
     name: string;
     last_msg_id: number;
-    msg_count: number
+    msg_count: number;
 
     constructor(stream_id: number, name: string) {
         this.stream_id = stream_id;
@@ -67,7 +70,7 @@ export class Topic {
     }
 
     update_last_message(msg_id: number): void {
-        if (msg_id > this.last_msg_id)  {
+        if (msg_id > this.last_msg_id) {
             this.last_msg_id = msg_id;
         }
         this.msg_count += 1;
@@ -110,7 +113,9 @@ class TopicTable {
         const all_topics = [...this.map.values()];
         all_topics.sort((t1, t2) => t2.last_msg_id - t1.last_msg_id);
 
-        const stream_topics = all_topics.filter((topic) => topic.stream_id === stream_id);
+        const stream_topics = all_topics.filter(
+            (topic) => topic.stream_id === stream_id,
+        );
 
         const topics = stream_topics.slice(0, max_recent);
 
@@ -119,12 +124,18 @@ class TopicTable {
     }
 }
 
-export function get_recent_topics(stream_id: number, max_recent: number): Topic[] {
+export function get_recent_topics(
+    stream_id: number,
+    max_recent: number,
+): Topic[] {
     return CurrentTopicTable.get_topics(stream_id, max_recent);
 }
 
 export function messages_for_topic(topic: Topic): RawMessage[] {
-        return CurrentMessageStore.messages_for_topic_name(topic.stream_id, topic.name);
+    return CurrentMessageStore.messages_for_topic_name(
+        topic.stream_id,
+        topic.name,
+    );
 }
 
 async function get_streams(): Promise<Stream[]> {
@@ -180,7 +191,6 @@ export function num_messages_for_stream(stream: Stream): number {
     return CurrentMessageStore.num_messages_for_stream_id(stream.stream_id);
 }
 
-
 export async function fetch_model_data(): Promise<void> {
     await get_users();
     Streams = await get_streams();
@@ -193,4 +203,3 @@ export async function fetch_model_data(): Promise<void> {
     CurrentTopicTable = new TopicTable();
     console.log("we have a model");
 }
-

@@ -17,7 +17,7 @@ export function render_list_heading(name: string): HTMLElement {
     text_div.style.fontSize = "19px";
     text_div.style.borderBottom = "1px solid black";
 
-    div.append(text_div)
+    div.append(text_div);
 
     return div;
 }

@@ -25,7 +25,6 @@ export class Cursor {
     down(): void {
         const count = this.count;
         this.selected_index = ((this.selected_index ?? -1) + 1) % count;
-
     }
 
     up(): void {
@@ -35,4 +34,3 @@ export class Cursor {
         this.selected_index -= 1;
     }
 }
-

@@ -1,16 +1,21 @@
-import type {Topic} from "./model";
+import type { Topic } from "./model";
 
-import {Cursor} from "./cursor";
+import { Cursor } from "./cursor";
 import * as model from "./model";
-import {render_list_heading, render_thead, render_th, render_tr, render_big_list} from "./render";
+import {
+    render_list_heading,
+    render_thead,
+    render_th,
+    render_tr,
+    render_big_list,
+} from "./render";
 
 let Callbacks: CallbackType;
 
 type CallbackType = {
     clear_topic(): void;
     set_topic_index(index: number): void;
-}
-
+};
 
 function render_topic_count(count: number): HTMLElement {
     const div = document.createElement("div");
@@ -116,7 +121,6 @@ class TopicList {
         return topics;
     }
 
-
     make_tbody(): HTMLElement {
         const cursor = this.cursor;
         const topics = this.get_topics();
@@ -208,4 +212,3 @@ export class TopicPane {
         div.append(CurrentTopicList.div);
     }
 }
-

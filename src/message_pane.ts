@@ -1,5 +1,5 @@
 import * as model from "./model";
-import type {RawMessage, Topic} from "./model";
+import type { RawMessage, Topic } from "./model";
 
 function render_topic_heading_count(count: number): HTMLElement {
     const div = document.createElement("div");
@@ -50,7 +50,6 @@ function render_message_content(content: string): HTMLElement {
 
     return div;
 }
-
 
 class MessageSender {
     div: HTMLElement;
@@ -168,4 +167,3 @@ export class MessagePane {
         div.append(message_list.div);
     }
 }
-

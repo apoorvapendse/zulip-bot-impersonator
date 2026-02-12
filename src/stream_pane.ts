@@ -1,15 +1,21 @@
-import type {Stream} from "./model";
+import type { Stream } from "./model";
 
-import {Cursor} from "./cursor";
+import { Cursor } from "./cursor";
 import * as model from "./model";
-import {render_list_heading, render_thead, render_th, render_tr, render_big_list} from "./render";
+import {
+    render_list_heading,
+    render_thead,
+    render_th,
+    render_tr,
+    render_big_list,
+} from "./render";
 
 let Callbacks: CallbackType;
 
 type CallbackType = {
     clear_stream(): void;
     set_stream_index(index: number): void;
-}
+};
 
 function render_stream_count(count: number): HTMLElement {
     const div = document.createElement("div");
@@ -92,10 +98,7 @@ class StreamList {
     }
 
     make_thead(): HTMLElement {
-        const thead = render_thead([
-            render_th("Count"),
-            render_th("Channel"),
-        ]);
+        const thead = render_thead([render_th("Count"), render_th("Channel")]);
 
         return thead;
     }
@@ -111,7 +114,6 @@ class StreamList {
 
         return streams;
     }
-
 
     make_tbody(): HTMLElement {
         const cursor = this.cursor;
@@ -194,5 +196,3 @@ export class StreamPane {
         div.append(CurrentStreamList.div);
     }
 }
-
-

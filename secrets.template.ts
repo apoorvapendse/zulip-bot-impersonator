@@ -11,13 +11,13 @@
 // SKIP PAST THE BOILERPLATE:
 
 export type ZulipAccount = {
-  email: string;
-  api_key: string;
-  name: string;
+    email: string;
+    api_key: string;
+    name: string;
 };
 
 export type RealmData = {
-  url: URL;
+    url: URL;
 };
 
 export type Config = {
@@ -25,7 +25,7 @@ export type Config = {
     realm_url: string;
     admin_bots: ZulipAccount[];
     user_creds: ZulipAccount;
-}
+};
 
 /****************** MAKE CHANGES BELOW!!! ************************/
 
@@ -47,7 +47,7 @@ export const config = mac_config;
 // BOILERPLATE FOLLOWS:
 
 export const realm_data: RealmData = {
-  url: new URL(config.realm_url),
+    url: new URL(config.realm_url),
 };
 
 export const admin_bots = config.admin_bots;

@@ -1,9 +1,15 @@
 import * as model from "./model";
-import {MessagePane} from "./message_pane";
-import {render_list_heading, render_thead, render_th, render_tr, render_big_list} from "./render";
-import {config} from "./secrets";
-import {CurrentStreamList, StreamPane} from "./stream_pane";
-import {CurrentTopicList, TopicPane} from "./topic_pane";
+import { MessagePane } from "./message_pane";
+import {
+    render_list_heading,
+    render_thead,
+    render_th,
+    render_tr,
+    render_big_list,
+} from "./render";
+import { config } from "./secrets";
+import { CurrentStreamList, StreamPane } from "./stream_pane";
+import { CurrentTopicList, TopicPane } from "./topic_pane";
 
 function render_div_button(label: string): HTMLElement {
     const div = document.createElement("div");
@@ -22,7 +28,6 @@ function render_div_button(label: string): HTMLElement {
         button.style.backgroundColor = "#000080";
     });
 
-
     div.append(button);
     return div;
 }
@@ -30,7 +35,7 @@ function render_div_button(label: string): HTMLElement {
 /**************************************************
  * search widget
  *
-**************************************************/
+ **************************************************/
 
 let CurrentSearchWidget: SearchWidget;
 
@@ -105,7 +110,6 @@ class SearchWidget {
         this.message_pane.populate(topic);
     }
 
-
     set_stream_index(index: number): void {
         CurrentStreamList.select_index(index);
         this.populate_topic_pane();
@@ -154,7 +158,7 @@ class SearchWidget {
 /**************************************************
  * buttons
  *
-**************************************************/
+ **************************************************/
 
 function stream_up_button(): HTMLElement {
     const div = render_div_button("prev channel");
@@ -242,7 +246,6 @@ class ButtonPanel {
         this.first_button.focus();
     }
 }
-
 
 let ThePage: Page;
 
