@@ -262,20 +262,34 @@ class TopicList {
         return this.topics[index];
     }
 
-    populate() {
-        const div = this.div;
-        const cursor = this.cursor;
-
+    make_thead(): HTMLElement {
         const thead = render_thead([
             render_th("Count"),
             render_th("Topic name"),
         ]);
 
-        const tbody = document.createElement("tbody");
+        return thead;
+    }
+
+    get_topics(): Topic[] {
+        const cursor = this.cursor;
 
         const max_recent = 5000;
         const topics = CurrentTopicTable.get_topics(max_recent);
+
         cursor.set_count(topics.length);
+
+        this.topics = topics;
+
+        return topics;
+    }
+
+
+    make_tbody(): HTMLElement {
+        const cursor = this.cursor;
+        const topics = this.get_topics();
+
+        const tbody = document.createElement("tbody");
 
         for (let i = 0; i < topics.length; ++i) {
             const topic = topics[i];
@@ -284,14 +298,25 @@ class TopicList {
             tbody.append(topic_row.tr);
         }
 
+        return tbody;
+    }
+
+    make_table(): HTMLElement {
+        const thead = this.make_thead();
+        const tbody = this.make_tbody();
+
         const table = document.createElement("table");
         table.append(thead);
         table.append(tbody);
 
-        div.innerHTML = "";
-        div.append(table);
+        return table;
+    }
 
-        this.topics = topics;
+    populate() {
+        const div = this.div;
+
+        div.innerHTML = "";
+        div.append(this.make_table());
     }
 
     select_index(index: number) {
