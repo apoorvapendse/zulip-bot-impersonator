@@ -103,14 +103,14 @@ export class ButtonPanel {
             callbacks.topic_up();
         });
 
-        div.append(this.next_channel.div);
-        div.append(this.prev_channel.div);
-
         div.append(this.surf_channels.div);
+        div.append(this.prev_channel.div);
+        div.append(this.next_channel.div);
+
 
         div.append(this.surf_topics.div);
-        div.append(this.next_topic.div);
         div.append(this.prev_topic.div);
+        div.append(this.next_topic.div);
 
         this.div = div;
     }
