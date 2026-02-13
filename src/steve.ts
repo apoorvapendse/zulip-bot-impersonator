@@ -75,7 +75,6 @@ class SearchWidget {
                 self.set_topic_index(index);
             },
         });
-        this.channel_view.populate();
     }
 
     populate(): void {

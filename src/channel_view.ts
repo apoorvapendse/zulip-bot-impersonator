@@ -10,7 +10,6 @@ export class ChannelView {
     div: HTMLElement;
     stream_id: number;
     topic_pane: TopicPane;
-    message_pane: MessagePane;
 
     constructor(stream_id: number, callbacks: CallbackType) {
         this.stream_id = stream_id;
@@ -24,53 +23,57 @@ export class ChannelView {
             },
         });
 
-        this.message_pane = new MessagePane();
-
         const div = document.createElement("div");
         div.style.display = "flex";
 
+        this.topic_pane.populate(stream_id);
         div.append(this.topic_pane.div);
-        div.append(this.message_pane.div);
 
         this.div = div;
-    }
-
-    populate_message_pane(): void {
-        const topic = CurrentTopicList.get_current_topic();
-        this.message_pane.populate(topic);
     }
 
     topic_selected(): boolean {
         return this.topic_pane.topic_selected();
     }
 
-    populate(): void {
-        const stream_id = this.stream_id;
-        this.topic_pane.populate(stream_id);
+    open_message_pane(): void {
+        const div = this.div;
+
+        const topic = CurrentTopicList.get_current_topic();
+        const message_pane = new MessagePane(topic!);
+
+        div.innerHTML = "";
+        div.append(this.topic_pane.div);
+        div.append(message_pane.div);
     }
 
     clear_message_pane(): void {
+        const div = this.div;
         CurrentTopicList.clear_selection();
-        this.populate_message_pane();
+
+        const topic = CurrentTopicList.get_current_topic();
+
+        div.innerHTML = "";
+        div.append(this.topic_pane.div);
     }
 
     set_topic_index(index: number): void {
         CurrentTopicList.select_index(index);
-        this.populate_message_pane();
+        this.open_message_pane();
     }
 
     surf_topics(): void {
         CurrentTopicList.surf();
-        this.populate_message_pane();
+        this.open_message_pane();
     }
 
     topic_up(): void {
         CurrentTopicList.up();
-        this.populate_message_pane();
+        this.open_message_pane();
     }
 
     topic_down(): void {
         CurrentTopicList.down();
-        this.populate_message_pane();
+        this.open_message_pane();
     }
 }

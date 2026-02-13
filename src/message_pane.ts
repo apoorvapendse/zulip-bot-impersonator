@@ -46,19 +46,8 @@ class MessageList {
 export class MessagePane {
     div: HTMLElement;
 
-    constructor() {
+    constructor(topic: Topic) {
         const div = document.createElement("div");
-
-        this.div = div;
-    }
-
-    populate(topic: Topic | undefined): void {
-        const div = this.div;
-
-        if (topic === undefined) {
-            div.innerText = "(no topic selected)";
-            return;
-        }
 
         div.innerHTML = "";
 
@@ -67,5 +56,7 @@ export class MessagePane {
 
         div.append(topic_line.div);
         div.append(message_list.div);
+
+        this.div = div;
     }
 }
