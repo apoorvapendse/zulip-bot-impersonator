@@ -6,7 +6,6 @@ type CallbackType = {
     set_topic_index(index: number): void;
 };
 
-
 export class ChannelView {
     div: HTMLElement;
     stream_id: number;
@@ -17,11 +16,11 @@ export class ChannelView {
         this.stream_id = stream_id;
 
         this.topic_pane = new TopicPane({
-           clear_message_pane(): void {
-               callbacks.clear_message_pane();
-           },
-           set_topic_index(index: number): void {
-               callbacks.set_topic_index(index);
+            clear_message_pane(): void {
+                callbacks.clear_message_pane();
+            },
+            set_topic_index(index: number): void {
+                callbacks.set_topic_index(index);
             },
         });
 

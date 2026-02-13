@@ -5,7 +5,7 @@ type SendInfo = {
     stream_id: number;
     topic_name: string;
     content: string;
-}
+};
 
 function render_textarea(): HTMLTextAreaElement {
     const elem = document.createElement("textarea");
@@ -51,17 +51,14 @@ async function send_message(info: SendInfo): Promise<void> {
     const credentials = btoa(`${email}:${api_key}`);
     const api_url = `${config.realm_url}/api/v1/messages`;
 
-    const response = await fetch(
-        api_url,
-        {
-            method: "POST",
-            headers: {
-                Authorization: `Basic ${credentials}`,
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: body.toString(),
+    const response = await fetch(api_url, {
+        method: "POST",
+        headers: {
+            Authorization: `Basic ${credentials}`,
+            "Content-Type": "application/x-www-form-urlencoded",
         },
-    );
+        body: body.toString(),
+    });
 
     const data = await response.json();
     console.log(data);
@@ -96,7 +93,7 @@ export class ComposeBox {
 
     send() {
         const stream_id = 567255;
-        const topic_name = "test"
+        const topic_name = "test";
 
         const content = this.textarea.contents() + "\n\n*from steve client*";
 

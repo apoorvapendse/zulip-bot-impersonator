@@ -57,4 +57,3 @@ export class Button {
         this.button.focus();
     }
 }
-

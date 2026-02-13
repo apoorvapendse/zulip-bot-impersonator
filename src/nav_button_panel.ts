@@ -49,7 +49,6 @@ export class ButtonPanel {
         div.append(this.prev_channel.div);
         div.append(this.next_channel.div);
 
-
         div.append(this.surf_topics.div);
         div.append(this.prev_topic.div);
         div.append(this.next_topic.div);

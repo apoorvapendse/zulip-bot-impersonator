@@ -32,4 +32,3 @@ export class MessageViewHeader {
         this.div = div;
     }
 }
-

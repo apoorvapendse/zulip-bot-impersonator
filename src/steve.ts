@@ -1,12 +1,5 @@
 import * as model from "./model";
 import { ButtonPanel } from "./nav_button_panel";
-import {
-    render_list_heading,
-    render_thead,
-    render_th,
-    render_tr,
-    render_big_list,
-} from "./render";
 import { config } from "./secrets";
 import { CurrentStreamList, StreamPane } from "./stream_pane";
 import { CurrentTopicList } from "./topic_pane";

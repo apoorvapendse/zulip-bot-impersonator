@@ -34,7 +34,6 @@ function render_message_content(content: string): HTMLElement {
     return div;
 }
 
-
 class MessageSender {
     div: HTMLElement;
 
@@ -77,4 +76,3 @@ export class MessageRow {
         this.div = div;
     }
 }
-
