@@ -145,6 +145,10 @@ export class ButtonPanel {
         this.next_topic.focus();
     }
 
+    focus_surf_topics_button(): void {
+        this.surf_topics.focus();
+    }
+
     start(): void {
         this.next_channel.focus();
     }

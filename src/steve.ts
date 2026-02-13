@@ -154,7 +154,7 @@ class SearchWidget {
         this.populate_topic_pane();
         this.update_button_panel();
         this.show_channels();
-        this.button_panel.focus_next_topic_button();
+        this.button_panel.focus_surf_topics_button();
     }
 
     clear_stream(): void {
@@ -183,14 +183,14 @@ class SearchWidget {
         this.populate_message_pane();
         this.update_button_panel();
         this.hide_channels();
+        this.button_panel.focus_next_topic_button();
     }
 
     surf_channels(): void {
         CurrentTopicList.clear_selection();
-        this.populate_message_pane();
         this.update_button_panel();
-        this.button_panel.focus_next_topic_button();
         this.show_channels();
+        this.button_panel.focus_next_channel_button();
     }
 
     surf_topics(): void {
@@ -198,6 +198,7 @@ class SearchWidget {
         this.populate_message_pane();
         this.update_button_panel();
         this.hide_channels();
+        this.button_panel.focus_next_topic_button();
     }
 
     topic_up(): void {
