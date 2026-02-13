@@ -25,7 +25,7 @@ class SearchWidget {
     button_panel: ButtonPanel;
     main_section: HTMLElement;
     stream_pane: StreamPane;
-    channel_view: ChannelView;
+    channel_view?: ChannelView;
     message_pane: MessagePane;
     channels_hidden: boolean;
 
@@ -66,7 +66,19 @@ class SearchWidget {
             },
         });
 
-        this.channel_view = new ChannelView({
+        this.message_pane = new MessagePane();
+
+        this.main_section = this.build_main_section();
+        this.show_only_channels();
+
+        this.channels_hidden = false;
+    }
+
+    make_channel_view() {
+        const self = this;
+
+        const stream_id = CurrentStreamList.get_stream_id();
+        this.channel_view = new ChannelView(stream_id!, {
             clear_message_pane(): void {
                 self.clear_message_pane();
             },
@@ -74,13 +86,7 @@ class SearchWidget {
                 self.set_topic_index(index);
             },
         });
-
-        this.message_pane = new MessagePane();
-
-        this.main_section = this.build_main_section();
-        this.show_only_channels();
-
-        this.channels_hidden = false;
+        this.channel_view.populate();
     }
 
     populate(): void {
@@ -100,6 +106,9 @@ class SearchWidget {
     }
 
     topic_selected(): boolean {
+        if (this.channel_view === undefined) {
+            return false;
+        }
         return this.channel_view.topic_selected();
     }
 
@@ -120,6 +129,7 @@ class SearchWidget {
 
         div.append(this.stream_pane.div);
 
+        this.channel_view = undefined;
         this.channels_hidden = false;
     }
 
@@ -129,7 +139,7 @@ class SearchWidget {
         div.innerHTML = "";
 
         div.append(this.stream_pane.div);
-        div.append(this.channel_view.div);
+        div.append(this.channel_view!.div);
 
         this.channels_hidden = false;
     }
@@ -139,15 +149,10 @@ class SearchWidget {
 
         div.innerHTML = "";
 
-        div.append(this.channel_view.div);
+        div.append(this.channel_view!.div);
         div.append(this.message_pane.div);
 
         this.channels_hidden = true;
-    }
-
-    populate_channel_view(): void {
-        const stream_id = CurrentStreamList.get_stream_id();
-        this.channel_view.populate(stream_id);
     }
 
     populate_message_pane(): void {
@@ -165,7 +170,7 @@ class SearchWidget {
 
     set_stream_index(index: number): void {
         CurrentStreamList.select_index(index);
-        this.populate_channel_view();
+        this.make_channel_view();
         this.update_button_panel();
         this.show_channels();
         this.button_panel.focus_surf_topics_button();
@@ -180,15 +185,17 @@ class SearchWidget {
 
     stream_up(): void {
         CurrentStreamList.up();
-        this.populate_channel_view();
+        this.make_channel_view();
         this.populate_message_pane();
+        this.show_channels();
         this.update_button_panel();
     }
 
     stream_down(): void {
         CurrentStreamList.down();
-        this.populate_channel_view();
+        this.make_channel_view();
         this.populate_message_pane();
+        this.show_channels();
         this.update_button_panel();
     }
 
@@ -213,7 +220,7 @@ class SearchWidget {
         }
         CurrentStreamList.surf();
         this.stream_pane.populate();
-        this.populate_channel_view();
+        this.make_channel_view();
         this.show_channels();
         this.update_button_panel();
         this.button_panel.focus_next_channel_button();
