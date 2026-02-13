@@ -1,7 +1,13 @@
-import type { Topic } from "./model";
+import type { RawMessage, Topic } from "./model";
 
 import { MessageRow } from "./message_row";
 import * as model from "./model";
+import { SmartList } from "./smart_list";
+
+type MessageInfo = {
+    message: RawMessage;
+    sender_id: number | undefined;
+};
 
 export class MessageList {
     div: HTMLElement;
@@ -25,6 +31,8 @@ export class MessageList {
 
         const messages = model.messages_for_topic(topic);
 
+        const rows: MessageInfo[] = [];
+
         let prev_sender_id: number | undefined;
 
         for (const message of messages) {
@@ -36,9 +44,19 @@ export class MessageList {
                 prev_sender_id = sender_id;
             }
 
-            const row = new MessageRow(message, sender_id);
-            div.append(row.div);
+            rows.push({ message, sender_id });
         }
+
+        const smart_list = new SmartList({
+            size: rows.length,
+            get_div(index: number) {
+                const { message, sender_id } = rows[index];
+                const message_row = new MessageRow(message, sender_id);
+                return message_row.div;
+            },
+        });
+
+        div.append(smart_list.div);
     }
 }
 
