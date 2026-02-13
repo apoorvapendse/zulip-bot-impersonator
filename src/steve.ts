@@ -150,10 +150,6 @@ class SearchWidget {
         this.channels_hidden = true;
     }
 
-    populate_message_pane(): void {
-        this.channel_view!.populate_message_pane();
-    }
-
     update_button_panel(): void {
         this.button_panel.update({
             stream_selected: this.stream_selected(),
@@ -180,7 +176,6 @@ class SearchWidget {
     stream_up(): void {
         CurrentStreamList.up();
         this.make_channel_view();
-        this.populate_message_pane();
         this.show_channels();
         this.update_button_panel();
     }
@@ -188,22 +183,12 @@ class SearchWidget {
     stream_down(): void {
         CurrentStreamList.down();
         this.make_channel_view();
-        this.populate_message_pane();
         this.show_channels();
         this.update_button_panel();
     }
 
-    set_topic_index(index: number): void {
-        CurrentTopicList.select_index(index);
-        this.populate_message_pane();
-        this.hide_channels();
-        this.update_button_panel();
-        this.button_panel.focus_next_topic_button();
-    }
-
     clear_message_pane(): void {
-        CurrentTopicList.clear_selection();
-        this.populate_message_pane();
+        this.channel_view!.clear_message_pane();
         this.update_button_panel();
         this.button_panel.focus_surf_topics_button();
     }
@@ -221,22 +206,26 @@ class SearchWidget {
     }
 
     surf_topics(): void {
-        CurrentTopicList.surf();
-        this.populate_message_pane();
+        this.channel_view!.surf_topics();
+        this.hide_channels();
+        this.update_button_panel();
+        this.button_panel.focus_next_topic_button();
+    }
+
+    set_topic_index(index: number): void {
+        this.channel_view!.set_topic_index(index);
         this.hide_channels();
         this.update_button_panel();
         this.button_panel.focus_next_topic_button();
     }
 
     topic_up(): void {
-        CurrentTopicList.up();
-        this.populate_message_pane();
+        this.channel_view!.topic_up();
         this.update_button_panel();
     }
 
     topic_down(): void {
-        CurrentTopicList.down();
-        this.populate_message_pane();
+        this.channel_view!.topic_down();
         this.update_button_panel();
     }
 }

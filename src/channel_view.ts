@@ -49,4 +49,29 @@ export class ChannelView {
         const stream_id = this.stream_id;
         this.topic_pane.populate(stream_id);
     }
+
+    clear_message_pane(): void {
+        CurrentTopicList.clear_selection();
+        this.populate_message_pane();
+    }
+
+    set_topic_index(index: number): void {
+        CurrentTopicList.select_index(index);
+        this.populate_message_pane();
+    }
+
+    surf_topics(): void {
+        CurrentTopicList.surf();
+        this.populate_message_pane();
+    }
+
+    topic_up(): void {
+        CurrentTopicList.up();
+        this.populate_message_pane();
+    }
+
+    topic_down(): void {
+        CurrentTopicList.down();
+        this.populate_message_pane();
+    }
 }
