@@ -6,11 +6,25 @@ import * as model from "./model";
 
 class MessageList {
     div: HTMLElement;
+    topic: Topic;
 
-    constructor(messages: RawMessage[]) {
+    constructor(topic: Topic) {
         const div = document.createElement("div");
         div.style.maxHeight = "80vh";
         div.style.overflowY = "auto";
+
+        this.topic = topic;
+        this.div = div;
+        this.populate();
+    }
+
+    populate() {
+        const div = this.div;
+        const topic = this.topic;
+
+        div.innerHTML = "";
+
+        const messages = model.messages_for_topic(topic);
 
         let prev_sender_id: number | undefined;
 
@@ -26,8 +40,6 @@ class MessageList {
             const row = new MessageRow(message, sender_id);
             div.append(row.div);
         }
-
-        this.div = div;
     }
 }
 
@@ -48,13 +60,10 @@ export class MessagePane {
             return;
         }
 
-        const messages = model.messages_for_topic(topic);
-
         div.innerHTML = "";
 
-        const topic_line = new MessageViewHeader(topic.name, messages.length);
-
-        const message_list = new MessageList(messages);
+        const topic_line = new MessageViewHeader(topic.name, topic.msg_count);
+        const message_list = new MessageList(topic);
 
         div.append(topic_line.div);
         div.append(message_list.div);
