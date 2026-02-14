@@ -6,8 +6,8 @@ function render_heading(): HTMLElement {
     div.innerText = "Send message to topic";
     div.style.color = "green";
     div.style.borderBottom = "1px solid green";
-    div.style.paddingBottom = "9px";
-    div.style.marginBottom = "12px";
+    div.style.paddingBottom = "10px";
+    div.style.marginBottom = "13px";
 
     return div;
 }

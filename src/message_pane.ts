@@ -10,6 +10,7 @@ export class MessagePane {
         const div = document.createElement("div");
 
         div.innerHTML = "";
+        div.style.marginRight = "45px";
 
         const topic_line = new MessageViewHeader(topic.name, topic.msg_count);
         const message_list = new MessageList(topic);

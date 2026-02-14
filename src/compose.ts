@@ -76,20 +76,32 @@ export class ComposeBox {
 
         const div = document.createElement("div");
         div.style.padding = "15px";
-        div.style.border = "1px black solid";
 
         const textarea = new TextArea();
+
+        div.append(textarea.div);
+        div.append(self.button_row());
+
+        document.body.append(div);
+
+        this.div = div;
+        this.textarea = textarea;
+    }
+
+    button_row(): HTMLElement {
+        const self = this;
+        const div = document.createElement("div")
+
+        div.style.display = "flex";
+        div.style.justifyContent = "end";
 
         const send_button = new Button("Send", () => {
             self.send();
         });
 
-        div.append(textarea.div);
         div.append(send_button.div);
 
-        document.body.append(div);
-        this.div = div;
-        this.textarea = textarea;
+        return div;
     }
 
     send() {
