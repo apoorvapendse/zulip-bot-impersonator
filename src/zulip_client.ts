@@ -1,7 +1,6 @@
 import { add_messages_to_cache } from "./model";
 import { realm_data, self_creds } from "./secrets";
 import { Popup, event_radio_widget } from "./steve";
-import { add_new_message_to_message_feed } from "./ui";
 
 function get_headers() {
     const auth = btoa(`${self_creds.email}:${self_creds.api_key}`);
@@ -106,12 +105,4 @@ export async function get_subscriptions() {
     const response = await fetch(url, { headers: get_headers() });
     const data = await response.json();
     return data.subscriptions;
-}
-
-export async function get_user_details_by_email(email: string) {
-    const url = new URL(`/api/v1/users/${email}`, realm_data.url);
-    const response = await fetch(url, { headers: get_headers() });
-    const data = await response.json();
-    const { user } = data;
-    return user;
 }
