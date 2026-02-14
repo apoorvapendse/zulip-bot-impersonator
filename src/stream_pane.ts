@@ -40,16 +40,16 @@ function render_stream_name(topic_name: string): HTMLElement {
 class StreamRowName {
     div: HTMLElement;
 
-    constructor(stream: Stream, index: number, selected: boolean) {
+    constructor(stream: Stream, index: number, selected: boolean, callbacks: CallbackType) {
         const stream_name = stream.name;
 
         const div = render_stream_name(stream_name);
 
         div.addEventListener("click", () => {
             if (selected) {
-                Callbacks.clear_stream();
+                callbacks.clear_stream();
             } else {
-                Callbacks.set_stream_index(index);
+                callbacks.set_stream_index(index);
             }
         });
 
@@ -64,9 +64,9 @@ class StreamRowName {
 class StreamRow {
     tr: HTMLElement;
 
-    constructor(stream_info: StreamInfo, index: number, selected: boolean) {
+    constructor(stream_info: StreamInfo, index: number, selected: boolean, callbacks: CallbackType) {
         const stream = stream_info.stream;
-        const stream_row_name = new StreamRowName(stream, index, selected);
+        const stream_row_name = new StreamRowName(stream, index, selected, callbacks);
 
         this.tr = render_tr([
             render_stream_count(stream_info.num_messages),
@@ -78,17 +78,19 @@ class StreamRow {
 export let CurrentStreamList: StreamList;
 
 class StreamList {
+    callbacks: CallbackType;
     div: HTMLElement;
     stream_ids: number[];
     cursor: Cursor;
 
-    constructor() {
+    constructor(callbacks: CallbackType) {
         const div = render_big_list();
 
         this.stream_ids = [];
         this.cursor = new Cursor();
         this.get_streams();
 
+        this.callbacks = callbacks;
         this.div = div;
     }
 
@@ -130,6 +132,7 @@ class StreamList {
     }
 
     make_tbody(): HTMLElement {
+        const callbacks = this.callbacks;
         const cursor = this.cursor;
         const streams = this.get_streams();
 
@@ -138,7 +141,7 @@ class StreamList {
         for (let i = 0; i < streams.length; ++i) {
             const stream = streams[i];
             const selected = cursor.is_selecting(i);
-            const stream_row = new StreamRow(stream, i, selected);
+            const stream_row = new StreamRow(stream, i, selected, callbacks);
             tbody.append(stream_row.tr);
         }
 
@@ -193,11 +196,9 @@ export class StreamPane {
     div: HTMLElement;
 
     constructor(callbacks: CallbackType) {
-        Callbacks = callbacks;
-
         const div = render_pane();
 
-        CurrentStreamList = new StreamList();
+        CurrentStreamList = new StreamList(callbacks);
 
         this.div = div;
         this.populate();
