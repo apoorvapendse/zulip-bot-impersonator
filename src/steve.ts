@@ -265,13 +265,12 @@ class Page {
 }
 
 export const event_radio_widget = new EventRadioWidgetSingleton();
-export const Popup  = new PopupSingleton();
+export const Popup = new PopupSingleton();
 
 export async function run() {
     document.title = config.nickname;
 
     document.body.style.backgroundColor = "rgb(246, 246, 255)";
-
 
     // do before fetching to get "spinner"
     const page = new Page();

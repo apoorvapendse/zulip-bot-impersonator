@@ -38,7 +38,12 @@ function render_topic_name(topic_name: string): HTMLElement {
 class TopicRowName {
     div: HTMLElement;
 
-    constructor(topic_name: string, index: number, selected: boolean, callbacks: CallbackType) {
+    constructor(
+        topic_name: string,
+        index: number,
+        selected: boolean,
+        callbacks: CallbackType,
+    ) {
         const div = render_topic_name(topic_name);
 
         div.addEventListener("click", () => {
@@ -60,8 +65,18 @@ class TopicRowName {
 class TopicRow {
     tr: HTMLElement;
 
-    constructor(topic: Topic, index: number, selected: boolean, callbacks: CallbackType) {
-        const topic_row_name = new TopicRowName(topic.name, index, selected, callbacks);
+    constructor(
+        topic: Topic,
+        index: number,
+        selected: boolean,
+        callbacks: CallbackType,
+    ) {
+        const topic_row_name = new TopicRowName(
+            topic.name,
+            index,
+            selected,
+            callbacks,
+        );
 
         this.tr = render_tr([
             render_topic_count(topic.msg_count),
@@ -110,7 +125,9 @@ export class TopicList {
         const new_topics = this.get_topics();
 
         if (topic) {
-            const new_index = new_topics.findIndex((other) => topic.is_same(other));
+            const new_index = new_topics.findIndex((other) =>
+                topic.is_same(other),
+            );
             cursor.select_index(new_index);
         }
 

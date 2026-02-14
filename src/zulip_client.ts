@@ -51,8 +51,8 @@ async function start_polling(callback: () => void) {
 function process_events(events: any, callback: () => void) {
     for (const event of events) {
         if (event.type === "message") {
-          event_radio_widget.add_event(event);
-          const message = event.message
+            event_radio_widget.add_event(event);
+            const message = event.message;
             if (message.type === "stream") {
                 Popup.finish();
                 const sender_name = message.sender_full_name;
@@ -72,9 +72,13 @@ function process_events(events: any, callback: () => void) {
                     callback, // for now we just refresh
                 });
                 add_messages_to_cache({
-                  content,topic_name:topic!, stream_id:stream_id!, sender_id:sender_id!, id:id!
-                })
-          }
+                    content,
+                    topic_name: topic!,
+                    stream_id: stream_id!,
+                    sender_id: sender_id!,
+                    id: id!,
+                });
+            }
         }
     }
 }

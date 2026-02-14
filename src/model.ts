@@ -60,8 +60,8 @@ class MessageStore {
         return this.messages_for_stream(stream_id).length;
     }
 
-    add_messages(messages:RawMessage[]){
-        this.raw_messages.push(...messages)
+    add_messages(messages: RawMessage[]) {
+        this.raw_messages.push(...messages);
     }
 }
 
@@ -88,7 +88,7 @@ export class Topic {
     }
 
     is_same(other: Topic) {
-        return (this.stream_id === other.stream_id) && (this.name === other.name);
+        return this.stream_id === other.stream_id && this.name === other.name;
     }
 
     update_last_message(msg_id: number): void {

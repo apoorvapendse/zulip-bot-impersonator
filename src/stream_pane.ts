@@ -38,7 +38,12 @@ function render_stream_name(topic_name: string): HTMLElement {
 class StreamRowName {
     div: HTMLElement;
 
-    constructor(stream: Stream, index: number, selected: boolean, callbacks: CallbackType) {
+    constructor(
+        stream: Stream,
+        index: number,
+        selected: boolean,
+        callbacks: CallbackType,
+    ) {
         const stream_name = stream.name;
 
         const div = render_stream_name(stream_name);
@@ -62,9 +67,19 @@ class StreamRowName {
 class StreamRow {
     tr: HTMLElement;
 
-    constructor(stream_info: StreamInfo, index: number, selected: boolean, callbacks: CallbackType) {
+    constructor(
+        stream_info: StreamInfo,
+        index: number,
+        selected: boolean,
+        callbacks: CallbackType,
+    ) {
         const stream = stream_info.stream;
-        const stream_row_name = new StreamRowName(stream, index, selected, callbacks);
+        const stream_row_name = new StreamRowName(
+            stream,
+            index,
+            selected,
+            callbacks,
+        );
 
         this.tr = render_tr([
             render_stream_count(stream_info.num_messages),

@@ -118,10 +118,10 @@ export class PopupSingleton {
             .join("\n");
     }
 
-    finish(callback?:()=>void) {
+    finish(callback?: () => void) {
         this.dialog_shell.finish();
         if (callback) {
-          callback();
+            callback();
         }
     }
 }
