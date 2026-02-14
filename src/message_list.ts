@@ -21,9 +21,11 @@ export class MessageList {
         this.topic = topic;
         this.div = div;
         this.populate();
+        this.scroll_to_bottom();
     }
 
     populate() {
+        const self = this;
         const div = this.div;
         const topic = this.topic;
 
@@ -54,8 +56,17 @@ export class MessageList {
                 const message_row = new MessageRow(message, sender_id);
                 return message_row.div;
             },
+            when_done() {
+                self.scroll_to_bottom();
+            },
         });
 
         div.append(smart_list.div);
+    }
+
+    scroll_to_bottom() {
+        const div = this.div;
+
+        div.scrollTop = div.scrollHeight - div.clientHeight;
     }
 }

@@ -1,6 +1,7 @@
 type Opts = {
     size: number;
     get_div: (index: number) => HTMLElement;
+    when_done: () => void;
 };
 
 export class SmartList {
@@ -27,5 +28,7 @@ export class SmartList {
         for (let i = 0; i < size; ++i) {
             div.append(get_div(i));
         }
+
+        opts.when_done();
     }
 }
