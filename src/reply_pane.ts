@@ -20,6 +20,7 @@ export class ReplyPane {
         const div = render_pane();
 
         div.innerHTML = "";
+        div.style.height = "fit-content";
 
         const stream_name = model.stream_name_for(topic.stream_id);
         div.append(render_heading(stream_name));

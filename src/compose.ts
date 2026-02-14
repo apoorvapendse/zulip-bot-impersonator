@@ -125,7 +125,6 @@ export class ComposeBox {
         this.topic = topic;
 
         const div = document.createElement("div");
-        div.style.padding = "15px";
 
         const topic_input = new TopicInput(topic.name);
 

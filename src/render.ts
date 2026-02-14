@@ -1,9 +1,10 @@
 export function render_pane(): HTMLElement {
     const div = document.createElement("div");
     div.style.backgroundColor = "white";
-    div.style.padding = "7px";
-    div.style.borderRadius = "4px";
+    div.style.padding = "10px";
+    div.style.borderRadius = "5px";
     div.style.marginRight = "25px";
+    div.style.height = "fit-content";
 
     return div;
 }
