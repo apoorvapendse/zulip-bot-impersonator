@@ -3,7 +3,7 @@ import type { TopicList } from "./topic_list";
 import * as model from "./model";
 import { ButtonPanel } from "./nav_button_panel";
 import { config } from "./secrets";
-import { CurrentStreamList, StreamPane } from "./stream_pane";
+import { StreamList, StreamPane } from "./stream_pane";
 import { ChannelView } from "./channel_view";
 
 /**************************************************
@@ -65,7 +65,7 @@ class SearchWidget {
     make_channel_view() {
         const self = this;
 
-        const stream_id = CurrentStreamList.get_stream_id();
+        const stream_id = this.get_stream_list().get_stream_id();
         this.channel_view = new ChannelView(stream_id!, {
             clear_message_view(): void {
                 self.clear_message_view();
@@ -156,8 +156,12 @@ class SearchWidget {
         });
     }
 
+    get_stream_list(): StreamList {
+        return this.stream_pane.get_stream_list();
+    }
+
     set_stream_index(index: number): void {
-        CurrentStreamList.select_index(index);
+        this.get_stream_list().select_index(index);
         this.make_channel_view();
         this.update_button_panel();
         this.show_channels();
@@ -165,21 +169,21 @@ class SearchWidget {
     }
 
     clear_stream(): void {
-        CurrentStreamList.clear_selection();
+        this.get_stream_list().clear_selection();
         this.show_only_channels();
         this.update_button_panel();
         this.button_panel.focus_next_channel_button();
     }
 
     stream_up(): void {
-        CurrentStreamList.up();
+        this.get_stream_list().up();
         this.make_channel_view();
         this.show_channels();
         this.update_button_panel();
     }
 
     stream_down(): void {
-        CurrentStreamList.down();
+        this.get_stream_list().down();
         this.make_channel_view();
         this.show_channels();
         this.update_button_panel();
@@ -197,7 +201,7 @@ class SearchWidget {
         if (topic_list) {
             topic_list.clear_selection();
         }
-        CurrentStreamList.surf();
+        this.get_stream_list().surf();
         this.stream_pane.populate();
         this.make_channel_view();
         this.show_channels();

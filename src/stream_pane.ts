@@ -75,9 +75,7 @@ class StreamRow {
     }
 }
 
-export let CurrentStreamList: StreamList;
-
-class StreamList {
+export class StreamList {
     callbacks: CallbackType;
     div: HTMLElement;
     stream_ids: number[];
@@ -194,27 +192,33 @@ class StreamList {
 
 export class StreamPane {
     div: HTMLElement;
+    stream_list: StreamList;
 
     constructor(callbacks: CallbackType) {
         const div = render_pane();
 
-        CurrentStreamList = new StreamList(callbacks);
+        this.stream_list = new StreamList(callbacks);
 
         this.div = div;
         this.populate();
     }
 
     stream_selected(): boolean {
-        return CurrentStreamList.has_selection();
+        return this.stream_list.has_selection();
+    }
+
+    get_stream_list(): StreamList {
+        return this.stream_list;
     }
 
     populate() {
         const div = this.div;
+        const stream_list = this.stream_list;
 
-        CurrentStreamList.populate();
+        stream_list.populate();
 
         div.innerHTML = "";
         div.append(render_list_heading("Channels"));
-        div.append(CurrentStreamList.div);
+        div.append(stream_list.div);
     }
 }
