@@ -12,8 +12,10 @@ let queue_id: string | undefined;
 let last_event_id: string | undefined;
 
 export async function register_queue() {
-    const url = realm_data.url;
-    const response = await fetch(url.href + "/api/v1/register", {
+    const url = new URL("/api/v1/register", realm_data.url);
+    url.searchParams.set("apply_markdown", "true");
+
+    const response = await fetch(url, {
         method: "POST",
         headers: get_headers(),
     });
