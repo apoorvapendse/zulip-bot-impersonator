@@ -2,13 +2,18 @@ import * as zulip_client from "./zulip_client";
 
 const BATCH_SIZE = 5000;
 
-export type RawMessage = {
+type StreamType = "stream";
+
+export type RawStreamMessage = {
     id: number;
+    type: StreamType;
     sender_id: number;
     stream_id: number;
     topic_name: string;
     content: string;
 };
+
+export type RawMessage = RawStreamMessage;
 
 export type StreamInfo = {
     num_messages: number;
@@ -28,31 +33,31 @@ type RawUser = {
 
 export let UserMap = new Map<number, RawUser>();
 
-let RawMessages: RawMessage[];
+let RawStreamMessages: RawStreamMessage[];
 export let Streams: Stream[];
 
 let CurrentMessageStore: MessageStore;
 
 class MessageStore {
-    raw_messages: RawMessage[];
+    raw_stream_messages: RawStreamMessage[];
 
-    constructor(raw_messages: RawMessage[]) {
+    constructor(raw_stream_messages: RawStreamMessage[]) {
         console.log("building message store");
-        this.raw_messages = raw_messages;
+        this.raw_stream_messages = raw_stream_messages;
     }
 
     messages_for_topic_name(stream_id: number, topic_name: string) {
-        return this.raw_messages.filter((raw_message) => {
+        return this.raw_stream_messages.filter((raw_stream_message) => {
             return (
-                raw_message.stream_id === stream_id &&
-                raw_message.topic_name === topic_name
+                raw_stream_message.stream_id === stream_id &&
+                raw_stream_message.topic_name === topic_name
             );
         });
     }
 
-    messages_for_stream(stream_id: number): RawMessage[] {
-        return this.raw_messages.filter((raw_message) => {
-            return raw_message.stream_id === stream_id;
+    messages_for_stream(stream_id: number): RawStreamMessage[] {
+        return this.raw_stream_messages.filter((raw_stream_message) => {
+            return raw_stream_message.stream_id === stream_id;
         });
     }
 
@@ -60,8 +65,8 @@ class MessageStore {
         return this.messages_for_stream(stream_id).length;
     }
 
-    add_messages(messages: RawMessage[]) {
-        this.raw_messages.push(...messages);
+    add_messages(messages: RawStreamMessage[]) {
+        this.raw_stream_messages.push(...messages);
     }
 }
 
@@ -107,7 +112,7 @@ class TopicTable {
     constructor() {
         this.map = new Map<string, Topic>();
 
-        for (const message of CurrentMessageStore.raw_messages) {
+        for (const message of CurrentMessageStore.raw_stream_messages) {
             const stream_id = message.stream_id;
             const topic_name = message.topic_name;
             const msg_id = message.id;
@@ -149,7 +154,7 @@ export function messages_for_topic(topic: Topic): RawMessage[] {
     );
 }
 
-export function add_messages_to_cache(message: RawMessage) {
+export function add_stream_messages_to_cache(message: RawStreamMessage) {
     CurrentMessageStore.add_messages([message]);
     CurrentTopicTable = new TopicTable();
 }
@@ -189,8 +194,8 @@ async function get_users(): Promise<void> {
     }
 }
 
-async function get_raw_messages(): Promise<RawMessage[]> {
-    const rows = await zulip_client.get_messages(BATCH_SIZE);
+async function get_raw_stream_messages(): Promise<RawStreamMessage[]> {
+    const rows = await zulip_client.get_stream_messages(BATCH_SIZE);
     return rows.map((row: any) => {
         return {
             id: row.id,
@@ -210,9 +215,9 @@ export async function fetch_model_data(): Promise<void> {
     await get_users();
     Streams = await fetch_streams();
 
-    const raw_messages = await get_raw_messages();
+    const raw_stream_messages = await get_raw_stream_messages();
 
-    CurrentMessageStore = new MessageStore(raw_messages);
+    CurrentMessageStore = new MessageStore(raw_stream_messages);
     console.log("we have messages");
 
     CurrentTopicTable = new TopicTable();

@@ -1,5 +1,4 @@
 import { process_events } from "./event";
-import { add_messages_to_cache } from "./model";
 import { realm_data, self_creds } from "./secrets";
 import { Popup } from "./steve";
 
@@ -48,9 +47,9 @@ async function start_polling(callback: () => void) {
     }
 }
 
-export async function get_messages(num_before: number) {
+export async function get_stream_messages(num_before: number) {
     const url = new URL(`/api/v1/messages`, realm_data.url);
-    url.searchParams.set("narrow", "[]");
+    url.searchParams.set("narrow", `[{"operator": "is", "operand": "dm", "negated": true}]`);
     url.searchParams.set("num_before", JSON.stringify(num_before));
     url.searchParams.set("anchor", "newest");
     const response = await fetch(url, { headers: get_headers() });

@@ -1,4 +1,4 @@
-import { add_messages_to_cache, RawMessage } from "./model";
+import { add_stream_messages_to_cache, RawStreamMessage } from "./model";
 import { event_radio_widget } from "./steve";
 
 const enum EventFlavor {
@@ -7,7 +7,7 @@ const enum EventFlavor {
 
 type StreamMessageEvent = {
     flavor: EventFlavor.STREAM_MESSAGE;
-    raw_message: RawMessage;
+    raw_stream_message: RawStreamMessage;
     info: string;
 };
 
@@ -20,8 +20,9 @@ function build_event(raw_event: any): ZulipEvent | undefined {
         const message: any = raw_event.message;
 
         if (message.type === "stream") {
-            const raw_message = {
+            const raw_stream_message: RawStreamMessage = {
                 id: message.id,
+                type: "stream",
                 sender_id: message.sender_id,
                 stream_id: message.stream_id,
                 topic_name: message.subject,
@@ -29,7 +30,7 @@ function build_event(raw_event: any): ZulipEvent | undefined {
             }
             return {
                 flavor: EventFlavor.STREAM_MESSAGE,
-                raw_message,
+                raw_stream_message,
                 info: `stream message id ${message.id}`,
             };
         }
@@ -48,7 +49,7 @@ export function process_events(raw_events: any, callback: () => void) {
             event_radio_widget.add_event(event);
 
             if (event.flavor === EventFlavor.STREAM_MESSAGE) {
-                add_messages_to_cache(event.raw_message);
+                add_stream_messages_to_cache(event.raw_stream_message);
             }
 
             callback();
