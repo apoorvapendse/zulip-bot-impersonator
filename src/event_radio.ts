@@ -24,5 +24,7 @@ export class EventRadioWidgetSingleton{
     }
     add_event(event:Object) {
       this.div.textContent += "\n--------\n" +JSON.stringify(event)
+      // Scroll to bottom after adding an event.
+      this.div.scrollTop = this.div.scrollHeight - this.div.clientHeight;
     }
 }
