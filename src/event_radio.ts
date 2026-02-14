@@ -100,11 +100,11 @@ export class EventRadioWidgetSingleton {
     }
 
     show(): void {
-        this.main_content.style.visibility = "visible";
+        this.main_content.style.display = "block";
     }
 
     hide(): void {
-        this.main_content.style.visibility = "hidden";
+        this.main_content.style.display = "none";
     }
 
     build_main_content(): HTMLDivElement {
