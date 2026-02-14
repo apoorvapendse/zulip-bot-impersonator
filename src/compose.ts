@@ -19,6 +19,35 @@ function render_textarea(): HTMLTextAreaElement {
     return elem;
 }
 
+class TopicInput {
+    div: HTMLElement;
+    topic_input: HTMLInputElement;
+
+    constructor(topic_name: string) {
+        const div = document.createElement("div");
+
+        const topic_input = this.make_topic_input(topic_name);
+        div.append(topic_input);
+
+        this.topic_input = topic_input;
+        this.div = div;
+    }
+
+    make_topic_input(topic_name: string): HTMLInputElement {
+        const input = document.createElement("input");
+
+        input.type = "text";
+        input.value = topic_name;
+        input.style.width = "100px";
+
+        return input;
+    }
+
+    topic_name(): string {
+        return this.topic_input.value;
+    }
+}
+
 class TextArea {
     div: HTMLElement;
     elem: HTMLTextAreaElement;
@@ -67,6 +96,7 @@ async function send_message(info: SendInfo): Promise<void> {
 
 export class ComposeBox {
     div: HTMLElement;
+    topic_input: TopicInput;
     textarea: TextArea;
     topic: Topic;
 
@@ -77,13 +107,17 @@ export class ComposeBox {
         const div = document.createElement("div");
         div.style.padding = "15px";
 
+        const topic_input = new TopicInput(topic.name);
+
         const textarea = new TextArea();
 
+        div.append(topic_input.div);
         div.append(textarea.div);
         div.append(self.button_row());
 
         document.body.append(div);
 
+        this.topic_input = topic_input;
         this.div = div;
         this.textarea = textarea;
     }
@@ -106,7 +140,7 @@ export class ComposeBox {
 
     send() {
         const stream_id = this.topic.stream_id;
-        const topic_name = this.topic.name;
+        const topic_name = this.topic_input.topic_name();
 
         console.log("send", stream_id, topic_name);
 
