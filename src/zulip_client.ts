@@ -1,4 +1,4 @@
-import { process_events } from "./event";
+import type { EventHandler } from "./event";
 import { realm_data, self_creds } from "./secrets";
 import { Popup } from "./steve";
 
@@ -11,7 +11,7 @@ function get_headers() {
 let queue_id: string | undefined;
 let last_event_id: string | undefined;
 
-export async function register_queue(callback: () => void) {
+export async function register_queue() {
     const url = realm_data.url;
     const response = await fetch(url.href + "/api/v1/register", {
         method: "POST",
@@ -20,10 +20,9 @@ export async function register_queue(callback: () => void) {
     const data = await response.json();
     queue_id = data.queue_id;
     last_event_id = data.last_event_id;
-    start_polling(callback);
 }
 
-async function start_polling(callback: () => void) {
+export async function start_polling(event_handler: EventHandler) {
     if (queue_id === undefined || last_event_id === undefined) {
         return;
     }
@@ -42,7 +41,7 @@ async function start_polling(callback: () => void) {
         }
         if (data.events?.length) {
             last_event_id = data.events[data.events.length - 1].id;
-            process_events(data.events, callback);
+            event_handler.process_events(data.events);
         }
     }
 }

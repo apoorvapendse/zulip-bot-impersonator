@@ -1,5 +1,6 @@
 import type { TopicList } from "./topic_list";
 
+import { EventFlavor, EventHandler, ZulipEvent } from "./event";
 import * as model from "./model";
 import * as zulip_client from "./zulip_client";
 import { ButtonPanel } from "./nav_button_panel";
@@ -263,7 +264,6 @@ class Page {
     }
 }
 
-export const event_radio_widget = new EventRadioWidgetSingleton();
 export const Popup = new PopupSingleton();
 
 export async function run() {
@@ -274,11 +274,17 @@ export async function run() {
     // do before fetching to get "spinner"
     const page = new Page();
 
+    const event_radio_widget = new EventRadioWidgetSingleton();
+
     let ready = false;
 
-    // we wait for register to finish, but then polling goes
-    // on "forever" asynchronously
-    await zulip_client.register_queue(() => {
+    const event_manager = new EventHandler((event: ZulipEvent) => {
+        event_radio_widget.add_event(event);
+
+        if (event.flavor === EventFlavor.STREAM_MESSAGE) {
+            model.add_stream_messages_to_cache(event.raw_stream_message);
+        }
+
         if (ready) {
             search_widget.refresh();
         } else {
@@ -286,7 +292,14 @@ export async function run() {
         }
     });
 
+    // we wait for register to finish, but then polling goes
+    // on "forever" asynchronously
+    await zulip_client.register_queue();
+
     await model.fetch_model_data();
+
+    zulip_client.start_polling(event_manager);
+
 
     const search_widget = new SearchWidget();
     search_widget.populate();
