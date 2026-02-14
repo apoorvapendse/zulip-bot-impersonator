@@ -1,4 +1,5 @@
 import { Button } from "./button";
+import { Topic } from "./model";
 import { config } from "./secrets";
 
 type SendInfo = {
@@ -67,13 +68,13 @@ async function send_message(info: SendInfo): Promise<void> {
 export class ComposeBox {
     div: HTMLElement;
     textarea: TextArea;
+    topic: Topic;
 
-    constructor() {
+    constructor(topic: Topic) {
         const self = this;
+        this.topic = topic;
+
         const div = document.createElement("div");
-        div.style.position = "absolute";
-        div.style.top = "0px";
-        div.style.right = "0px";
         div.style.padding = "15px";
         div.style.border = "1px black solid";
 
@@ -92,8 +93,10 @@ export class ComposeBox {
     }
 
     send() {
-        const stream_id = 567255;
-        const topic_name = "test";
+        const stream_id = this.topic.stream_id;
+        const topic_name = this.topic.name;
+
+        console.log("send", stream_id, topic_name);
 
         const content = this.textarea.contents() + "\n\n*from steve client*";
 
