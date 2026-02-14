@@ -63,7 +63,7 @@ function gui() {
 }
 
 gui();
-zulip_client.register_queue();
 */
 
 steve.run();
+zulip_client.register_queue();
