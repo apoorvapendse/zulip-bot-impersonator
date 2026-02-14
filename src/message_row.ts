@@ -65,6 +65,10 @@ export class MessageRow {
         div.style.marginBottom = "5px";
         div.style.borderBottom = "1px dotted #000080";
         div.style.maxWidth = "500px";
+        div.style.fontSize = "16px";
+        div.style.fontFamily = `"Source Sans 3 VF", sans-serif`
+        div.style.color = "rgb(38, 38, 38)";
+        div.style.lineHeight = "22.4px";
 
         if (sender_id) {
             const sender = new MessageSender(sender_id);
