@@ -251,7 +251,6 @@ class Page {
         const div = document.createElement("div");
         div.innerText =
             "Welcome to Zulip! loading users and recent messages...";
-        div.style.marginLeft = "15px";
 
         document.body.append(div);
 

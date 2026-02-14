@@ -5,12 +5,13 @@ type DivButton = {
 
 function render_div_button(label: string): DivButton {
     const div = document.createElement("div");
-    div.style.padding = "3px";
+    div.style.marginTop = "2px";
 
     const button = document.createElement("button");
     button.innerText = label;
     button.style.color = "white";
     button.style.backgroundColor = "#000080";
+    button.style.marginRight = "3px";
 
     button.addEventListener("focus", () => {
         button.style.backgroundColor = "green";
