@@ -11,8 +11,6 @@ import { ChannelView } from "./channel_view";
  *
  **************************************************/
 
-let CurrentSearchWidget: SearchWidget;
-
 class SearchWidget {
     div: HTMLElement;
     button_panel: ButtonPanel;
@@ -231,8 +229,6 @@ class SearchWidget {
         this.update_button_panel();
     }
 }
-
-let ThePage: Page;
 
 class Page {
     div: HTMLElement;
