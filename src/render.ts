@@ -1,3 +1,13 @@
+export function render_pane(): HTMLElement {
+    const div = document.createElement("div");
+    div.style.backgroundColor = "white";
+    div.style.padding = "7px";
+    div.style.borderRadius = "4px";
+    div.style.marginRight = "25px";
+
+    return div;
+}
+
 export function render_big_list(): HTMLElement {
     const div = document.createElement("div");
     div.style.paddingRight = "5px";

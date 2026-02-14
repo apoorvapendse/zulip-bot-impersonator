@@ -2,7 +2,7 @@ import type { Topic } from "./model";
 
 import { ComposeBox } from "./compose";
 import * as model from "./model";
-import { render_list_heading } from "./render";
+import { render_list_heading, render_pane } from "./render";
 
 function render_heading(stream_name: string): HTMLElement {
     const title = `Send message to channel: ${stream_name}`;
@@ -17,7 +17,7 @@ export class ReplyPane {
     div: HTMLElement;
 
     constructor(topic: Topic) {
-        const div = document.createElement("div");
+        const div = render_pane();
 
         div.innerHTML = "";
 

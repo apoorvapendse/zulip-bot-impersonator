@@ -8,6 +8,7 @@ import {
     render_th,
     render_tr,
     render_big_list,
+    render_pane,
 } from "./render";
 
 let Callbacks: CallbackType;
@@ -194,9 +195,7 @@ export class StreamPane {
     constructor(callbacks: CallbackType) {
         Callbacks = callbacks;
 
-        const div = document.createElement("div");
-
-        div.style.marginRight = "45px";
+        const div = render_pane();
 
         CurrentStreamList = new StreamList();
 

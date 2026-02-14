@@ -232,6 +232,7 @@ class Page {
         div.innerText =
             "Welcome to Zulip! loading users and recent messages...";
         div.style.marginLeft = "15px";
+
         document.body.append(div);
 
         this.div = div;
@@ -245,6 +246,8 @@ class Page {
 
 export async function run() {
     document.title = config.nickname;
+
+    document.body.style.backgroundColor = "rgb(246, 246, 255)";
 
     // do before fetching to get "spinner"
     const ThePage = new Page();
