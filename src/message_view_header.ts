@@ -23,7 +23,7 @@ export class MessageViewHeader {
         const div = document.createElement("div");
         div.style.display = "flex";
         div.style.borderBottom = "1px solid black";
-        div.style.paddingBottom = "6px";
+        div.style.paddingBottom = "4px";
         div.style.marginBottom = "12px";
 
         div.append(render_topic_heading(topic_name));
