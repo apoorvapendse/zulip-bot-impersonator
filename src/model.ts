@@ -59,6 +59,10 @@ class MessageStore {
     num_messages_for_stream_id(stream_id: number): number {
         return this.messages_for_stream(stream_id).length;
     }
+
+    add_messages(messages:RawMessage[]){
+        this.raw_messages.push(...messages)
+    }
 }
 
 export function get_streams(): StreamInfo[] {
@@ -139,6 +143,10 @@ export function messages_for_topic(topic: Topic): RawMessage[] {
         topic.stream_id,
         topic.name,
     );
+}
+
+export function add_messages_to_cache(message: RawMessage) {
+  CurrentMessageStore.add_messages([message])
 }
 
 async function fetch_streams(): Promise<Stream[]> {

@@ -1,3 +1,4 @@
+import { add_messages_to_cache } from "./model";
 import { realm_data, self_creds } from "./secrets";
 import { Popup, event_radio_widget } from "./steve";
 import { add_new_message_to_message_feed } from "./ui";
@@ -49,7 +50,7 @@ async function start_polling() {
 
 function process_events(events: any) {
     for (const event of events) {
-        radio_widget.add_event(event);
+        event_radio_widget.add_event(event);
         if (event.type === "message") {
           const message = event.message
             if (message.type === "stream") {
@@ -58,7 +59,14 @@ function process_events(events: any) {
                 const content = message.content;
                 const topic = message.subject;
                 const stream = message.display_recipient;
+                const stream_id = message.stream_id;
+                const sender_id = message.sender_id;
+                const id = message.id;
+
                 Popup.show({ content:`#${stream}>${topic}\n${sender_name} said:\n\n` + content, confirm_button_text: "Got it", type: "info", callback: () => { } })
+                add_messages_to_cache({
+                  content,topic_name:topic!, stream_id:stream_id!, sender_id:sender_id!, id:id!
+                })
           }
         }
     }
