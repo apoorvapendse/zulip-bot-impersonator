@@ -34,6 +34,7 @@ function labeled_input(name: string, input: HTMLInputElement) {
 }
 
 class TopicInput {
+    is_new: boolean;
     div: HTMLElement;
     topic_input: HTMLInputElement;
 
@@ -45,6 +46,7 @@ class TopicInput {
 
         div.append(label);
 
+        this.is_new = (topic_name === "");
         this.topic_input = topic_input;
         this.div = div;
     }
@@ -58,6 +60,10 @@ class TopicInput {
         input.style.width = "300px";
 
         return input;
+    }
+
+    focus(): void {
+        this.topic_input.focus();
     }
 
     topic_name(): string {
@@ -170,5 +176,9 @@ export class ComposeBox {
         const topic_name = this.topic_input.topic_name();
 
         send_message({ stream_id, topic_name, content });
+    }
+
+    focus_topic_input(): void {
+        this.topic_input.focus();
     }
 }

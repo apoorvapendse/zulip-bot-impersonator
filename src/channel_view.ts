@@ -100,7 +100,7 @@ export class ChannelView {
         const add_topic_pane = new AddTopicPane(this.stream_id);
         div.append(add_topic_pane.div);
 
-        // TODO: focus the topic box!
+        add_topic_pane.focus_compose_box();
     }
 
     set_topic_index(index: number): void {

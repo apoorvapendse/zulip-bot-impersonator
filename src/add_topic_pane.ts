@@ -14,6 +14,7 @@ function render_heading(stream_name: string): HTMLElement {
 
 export class AddTopicPane {
     div: HTMLElement;
+    compose_box: ComposeBox;
 
     constructor(stream_id: number) {
         const div = render_pane();
@@ -30,5 +31,10 @@ export class AddTopicPane {
         div.append(compose_box.div);
 
         this.div = div;
+        this.compose_box = compose_box;
+    }
+
+    focus_compose_box(): void {
+        this.compose_box.focus_topic_input();
     }
 }
