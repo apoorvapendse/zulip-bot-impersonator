@@ -45,7 +45,7 @@ export class SmartList {
 
         this.done = true;
 
-        for (const new_div in this.queue) {
+        for (const new_div of this.queue) {
             div.append(new_div);
         }
         this.queue = [];
