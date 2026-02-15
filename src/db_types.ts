@@ -29,3 +29,28 @@ export type RawUser = {
     avatar_url: string;
 };
 
+export class Topic {
+    stream_id: number;
+    name: string;
+    last_msg_id: number;
+    msg_count: number;
+
+    constructor(stream_id: number, name: string) {
+        this.stream_id = stream_id;
+        this.name = name;
+        this.msg_count = 0;
+        this.last_msg_id = -1;
+    }
+
+    is_same(other: Topic) {
+        return this.stream_id === other.stream_id && this.name === other.name;
+    }
+
+    update_last_message(msg_id: number): void {
+        if (msg_id > this.last_msg_id) {
+            this.last_msg_id = msg_id;
+        }
+        this.msg_count += 1;
+    }
+}
+

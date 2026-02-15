@@ -1,4 +1,4 @@
-import type { Topic } from "./model";
+import type { Topic } from "./db_types";
 
 import { Cursor } from "./cursor";
 import * as model from "./model";

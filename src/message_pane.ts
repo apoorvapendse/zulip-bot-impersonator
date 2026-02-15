@@ -1,5 +1,4 @@
-import type { RawStreamMessage } from "./db_types";
-import type { Topic } from "./model";
+import type { RawStreamMessage, Topic } from "./db_types";
 
 import { MessageList } from "./message_list";
 import { MessageViewHeader } from "./message_view_header";

@@ -1,5 +1,4 @@
-import type { RawStreamMessage } from "./db_types";
-import type { Topic } from "./model";
+import type { RawStreamMessage, Topic } from "./db_types";
 
 import { MessagePane } from "./message_pane";
 import { ReplyPane } from "./reply_pane";

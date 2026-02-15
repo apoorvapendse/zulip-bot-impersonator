@@ -1,5 +1,6 @@
+import type { Topic } from "./db_types";
+
 import { Button } from "./button";
-import { Topic } from "./model";
 import { config } from "./secrets";
 
 type SendInfo = {
