@@ -4,6 +4,7 @@ import { Button } from "./button";
 import { EventFlavor } from "./event";
 import * as model from "./model";
 import { MessageRow } from "./message_row";
+import { ModalManager } from "./modal_manager";
 
 class IndicatorButton {
     div: HTMLElement;
@@ -25,7 +26,7 @@ class IndicatorButton {
         button.style.padding = "2px";
         button.style.userSelect = "none";
 
-        button.addEventListener("click", () => {
+        button.addEventListener("click", (e) => {
             console.log(self.expanded);
             if (self.expanded) {
                 hide();
@@ -34,6 +35,7 @@ class IndicatorButton {
                 show();
                 self.on();
             }
+            e.stopPropagation()
         });
 
         div.append(button);
@@ -105,6 +107,12 @@ export class EventRadioWidgetSingleton {
         this.div = div;
 
         this.hide();
+        ModalManager.register((e: PointerEvent) => {
+            const target = e.target;
+            if (target instanceof HTMLElement && !target.contains(this.div)) {
+                self.hide();
+            }
+        });
     }
 
     show(): void {
@@ -114,6 +122,7 @@ export class EventRadioWidgetSingleton {
 
     hide(): void {
         this.main_content.style.display = "none";
+        this.button.off();
     }
 
     build_main_content(): HTMLDivElement {
