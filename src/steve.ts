@@ -41,6 +41,9 @@ class SearchWidget {
             surf_channels(): void {
                 self.surf_channels();
             },
+            add_topic(): void {
+                console.log("add_topic");
+            },
             surf_topics(): void {
                 self.surf_topics();
             },

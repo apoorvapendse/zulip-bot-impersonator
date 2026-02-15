@@ -1,9 +1,10 @@
 import { Button } from "./button";
 
 type CallbackType = {
+    surf_channels(): void;
     stream_up(): void;
     stream_down(): void;
-    surf_channels(): void;
+    add_topic(): void;
     surf_topics(): void;
     topic_up(): void;
     topic_down(): void;
@@ -11,12 +12,13 @@ type CallbackType = {
 
 export class ButtonPanel {
     div: HTMLElement;
-    next_channel: Button;
-    prev_channel: Button;
-    next_topic: Button;
-    prev_topic: Button;
-    surf_topics: Button;
     surf_channels: Button;
+    prev_channel: Button;
+    next_channel: Button;
+    add_topic: Button;
+    surf_topics: Button;
+    prev_topic: Button;
+    next_topic: Button;
 
     constructor(callbacks: CallbackType) {
         const div = document.createElement("div");
@@ -34,6 +36,10 @@ export class ButtonPanel {
             callbacks.stream_up();
         });
 
+        this.add_topic = new Button("add topic", () => {
+            callbacks.add_topic();
+        });
+
         this.surf_topics = new Button("surf topics", () => {
             callbacks.surf_topics();
         });
@@ -48,6 +54,8 @@ export class ButtonPanel {
         div.append(this.surf_channels.div);
         div.append(this.prev_channel.div);
         div.append(this.next_channel.div);
+
+        div.append(this.add_topic.div);
 
         div.append(this.surf_topics.div);
         div.append(this.prev_topic.div);
@@ -73,12 +81,12 @@ export class ButtonPanel {
             }
         }
 
-        console.log("In button code", channels_hidden);
         show_if(this.surf_channels, !stream_selected || channels_hidden);
 
         show_if(this.next_channel, !topic_selected && stream_selected);
         show_if(this.prev_channel, !topic_selected && stream_selected);
 
+        show_if(this.add_topic, stream_selected);
         show_if(this.surf_topics, stream_selected && !topic_selected);
 
         show_if(this.next_topic, topic_selected);
