@@ -27,7 +27,7 @@ export type Stream = {
     stream_weekly_traffic: number;
 };
 
-type RawUser = {
+export type RawUser = {
     id: number;
     full_name: string;
     avatar_url: string;
@@ -70,6 +70,25 @@ class MessageStore {
     add_messages(messages: RawStreamMessage[]) {
         this.raw_stream_messages.push(...messages);
     }
+}
+
+export function participants_for_stream(stream_id: number): RawUser[] {
+    const map = new Map<number, number>();
+
+    const messages = CurrentMessageStore.messages_for_stream(stream_id).slice(-20);
+
+    for (const message of messages) {
+        const sender_id = message.sender_id;
+        const count = (map.get(sender_id) ?? 0) + 1;
+        map.set(sender_id, count);
+    }
+
+    const sender_ids = [...map.keys()];
+
+    sender_ids.sort((s1, s2) => map.get(s2)! - map.get(s1)!);
+
+    // we still need system bots
+    return sender_ids.map((sender_id) => UserMap.get(sender_id)!).filter((user) => user !== undefined);
 }
 
 export function get_streams(): StreamInfo[] {

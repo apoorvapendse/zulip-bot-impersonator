@@ -9,6 +9,16 @@ function render_text(text: string) {
     return div;
 }
 
+function render_participants(participants: model.RawUser[]) {
+    const div = document.createElement("div");
+
+    for (const user of participants) {
+        div.append(render_text(user.full_name));
+    }
+
+    return div;
+}
+
 export class ChannelInfo {
     div: HTMLElement;
 
@@ -27,6 +37,10 @@ export class ChannelInfo {
         if (stream.stream_weekly_traffic) {
             div.append(render_text(`traffic: about ${stream.stream_weekly_traffic} messages per week`));
         }
+
+        const participants = model.participants_for_stream(stream_id);
+        console.log(participants);
+        div.append(render_participants(participants));
 
         this.div = div;
     }
