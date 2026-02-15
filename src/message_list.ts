@@ -33,8 +33,14 @@ export class MessageList {
             const sender_id = raw_stream_message.sender_id;
             const is_super_new = true;
             const message_row = new MessageRow(raw_stream_message, sender_id, is_super_new);
+
+            const was_near_bottom = this.near_bottom();
+
             this.smart_list.append(message_row.div);
-            this.scroll_to_bottom();
+
+            if (was_near_bottom) {
+                this.scroll_to_bottom();
+            }
         }
     }
 
@@ -79,6 +85,15 @@ export class MessageList {
         div.append(smart_list.div);
 
         return smart_list;
+    }
+
+    near_bottom(): boolean {
+        const div = this.div;
+        console.log(div.scrollTop);
+        console.log(div.scrollHeight);
+        console.log(div.clientHeight);
+
+        return div.scrollTop > div.scrollHeight - div.clientHeight - 10;
     }
 
     scroll_to_bottom() {
