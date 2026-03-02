@@ -62,7 +62,9 @@ export class SearchWidget {
         channel_list.populate();
 
         const channel_pane_div = document.createElement("div");
-        layout.draw_table_pane(channel_pane_div, "Channels", channel_list.div);
+        const empty_div = document.createElement("div");
+
+        layout.draw_table_pane(channel_pane_div, "Channels", empty_div, channel_list.div);
 
         pane_manager.add_pane({
             key: "channel_pane",

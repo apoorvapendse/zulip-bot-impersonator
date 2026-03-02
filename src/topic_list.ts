@@ -51,10 +51,13 @@ export class TopicList {
         this.cursor = cursor;
 
         const div = document.createElement("div");
-        div.append(this.adjuster_div);
         div.append(this.make_table());
 
         this.div = div;
+    }
+
+    get_adjuster_div(): HTMLDivElement {
+        return this.adjuster_div;
     }
 
     has_selection(): boolean {
@@ -193,9 +196,6 @@ export class TopicList {
         this.update_cursor();
 
         div.innerHTML = "";
-        if (!this.has_selection()) {
-            div.append(this.adjuster_div);
-        }
         div.append(this.make_table());
     }
 

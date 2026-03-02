@@ -39,7 +39,8 @@ export class ChannelView {
         const topic_list = new TopicList(channel_row, search_widget);
 
         const heading_text = "#" + channel_row.name();
-        layout.draw_table_pane(topic_pane_div, heading_text, topic_list.div);
+        const adjuster_div = topic_list.get_adjuster_div();
+        layout.draw_table_pane(topic_pane_div, heading_text, adjuster_div, topic_list.div);
 
         pane_manager.add_pane({
             key: "topic_pane",

@@ -59,12 +59,14 @@ function layout_main_pane_div(div: HTMLDivElement): void {
 export function draw_table_pane(
     pane_div: HTMLDivElement,
     heading_text: string,
+    adjuster_div: HTMLDivElement,
     table_div: HTMLDivElement,
 ) {
     layout_pane_div(pane_div);
 
     pane_div.innerHTML = "";
     pane_div.append(render_list_heading(heading_text));
+    pane_div.append(adjuster_div);
 
     const main_div = document.createElement("div");
     layout_main_pane_div(main_div);
