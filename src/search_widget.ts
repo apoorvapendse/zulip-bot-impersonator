@@ -59,7 +59,7 @@ export class SearchWidget {
         const pane_manager = new PaneManager();
 
         const channel_list = new ChannelList(self);
-        channel_list.populate();
+        channel_list.refresh_completely();
 
         const channel_pane_div = document.createElement("div");
         const empty_div = document.createElement("div");
@@ -89,7 +89,7 @@ export class SearchWidget {
     }
 
     refresh_message_ids(message_ids: number[]): void {
-        this.channel_list.populate();
+        this.channel_list.refresh_completely();
 
         const topic_list = this.get_topic_list();
         const message_list = this.get_message_list();
@@ -104,7 +104,7 @@ export class SearchWidget {
     }
 
     handle_incoming_message(message: Message): void {
-        this.channel_list.populate();
+        this.channel_list.refresh_completely();
         if (this.channel_view) {
             this.channel_view.refresh(message);
         }

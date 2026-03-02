@@ -82,7 +82,7 @@ export class ChannelList {
         return count;
     }
 
-    populate() {
+    refresh_completely() {
         const div = this.div;
 
         this.channel_rows = this.populate_channel_rows();
@@ -93,11 +93,11 @@ export class ChannelList {
 
     select_channel_id(channel_id: number): void {
         this.channel_id = channel_id;
-        this.populate();
+        this.refresh_completely();
     }
 
     clear_selection(): void {
         this.channel_id = undefined;
-        this.populate();
+        this.refresh_completely();
     }
 }
