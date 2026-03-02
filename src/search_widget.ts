@@ -336,6 +336,11 @@ export class SearchWidget {
         this.button_panel.focus_next_topic_button();
     }
 
+    set_topic_id(topic_id: number): void {
+        this.channel_view!.select_topic_id(topic_id);
+        this.update_topic();
+    }
+
     set_topic_index(index: number): void {
         this.channel_view!.set_topic_index(index);
         this.update_topic();

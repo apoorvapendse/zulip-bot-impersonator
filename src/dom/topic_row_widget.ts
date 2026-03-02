@@ -1,12 +1,7 @@
+import type { TopicRow } from "../row_types";
 import type { SearchWidget } from "../search_widget";
 
 import { render_unread_count } from "./render";
-
-type TopicRowData = {
-    name: string;
-    msg_count: number;
-    unread_count: number;
-};
 
 function render_topic_count(count: number): HTMLDivElement {
     const div = document.createElement("div");
@@ -30,18 +25,20 @@ function render_topic_name(topic_name: string): HTMLDivElement {
 }
 
 function render_name_div(
-    topic_name: string,
-    index: number,
+    topic_row: TopicRow,
     selected: boolean,
     search_widget: SearchWidget,
 ): HTMLDivElement {
+    const topic_id = topic_row.topic_id();
+    const topic_name = topic_row.name();
+
     const div = render_topic_name(topic_name);
 
     div.addEventListener("click", () => {
         if (selected) {
             search_widget.clear_message_view();
         } else {
-            search_widget.set_topic_index(index);
+            search_widget.set_topic_id(topic_id);
         }
     });
 
@@ -53,23 +50,21 @@ function render_name_div(
 }
 
 export function row_widget(
-    row_data: TopicRowData,
-    index: number,
+    topic_row: TopicRow,
     selected: boolean,
     search_widget: SearchWidget,
 ): { divs: HTMLDivElement[] } {
     const name_div = render_name_div(
-        row_data.name,
-        index,
+        topic_row,
         selected,
         search_widget,
     );
 
     return {
         divs: [
-            render_unread_count(row_data.unread_count),
+            render_unread_count(topic_row.unread_count()),
             name_div,
-            render_topic_count(row_data.msg_count),
+            render_topic_count(topic_row.num_messages()),
         ],
     };
 }

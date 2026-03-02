@@ -68,15 +68,6 @@ export class TopicList {
         return this.topic_id;
     }
 
-    select_topic(new_topic_rows: TopicRow[], topic_id: number) {
-        const cursor = this.cursor;
-
-        const index = new_topic_rows.findIndex((topic_row) => {
-            return topic_row.topic_id() === topic_id;
-        });
-        cursor.select_index(index);
-    }
-
     refresh_topics_with_topic_selected(topic_id: number): void {
         this.topic_id = topic_id;
         this.refresh();
@@ -167,14 +158,8 @@ export class TopicList {
         for (let i = 0; i < topic_rows.length; ++i) {
             const topic_row = topic_rows[i];
             const selected = cursor.is_selecting(i);
-            const topic_row_data = {
-                name: topic_row.name(),
-                msg_count: topic_row.num_messages(),
-                unread_count: topic_row.unread_count(),
-            };
             const row_widget = topic_row_widget.row_widget(
-                topic_row_data,
-                i,
+                topic_row,
                 selected,
                 search_widget,
             );
@@ -197,6 +182,11 @@ export class TopicList {
 
         div.innerHTML = "";
         div.append(this.make_table());
+    }
+
+    select_topic_id(topic_id: number) {
+        const index = this.get_index_for(topic_id);
+        this.cursor.select_index(index);
     }
 
     select_index(index: number) {
