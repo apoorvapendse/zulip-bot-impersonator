@@ -9,7 +9,15 @@ import * as mouse_drag from "./util/mouse_drag";
 import * as app from "./app";
 import { Page } from "./page";
 
+import * as game from "./lyn_rummy/game";
+
 export async function run() {
+    console.log(window.location.pathname);
+    if (window.location.pathname === "/LynRummy") {
+        game.gui();
+        return;
+    }
+
     if (login_manager.needs_to_login()) {
         // The login_manager will end up doing a page redirect that will
         // call this `run` again.
