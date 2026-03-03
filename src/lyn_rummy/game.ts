@@ -268,23 +268,6 @@ function suit_emoji_str(suit: Suit): string {
     }
 }
 
-function suit_str(suit: Suit): string {
-    switch (suit) {
-        case Suit.CLUB:
-            return "C";
-        case Suit.DIAMOND:
-            return "D";
-        case Suit.HEART:
-            return "H";
-        case Suit.SPADE:
-            return "S";
-    }
-}
-
-function deck_str(origin_deck: OriginDeck): string {
-    return origin_deck.toString();
-}
-
 function suit_for(label: string): Suit {
     switch (label) {
         case "C":
@@ -308,10 +291,6 @@ function card_color(suit: Suit): CardColor {
         case Suit.HEART:
             return CardColor.RED;
     }
-}
-
-function card_color_str(color: CardColor): string {
-    return color == CardColor.RED ? "red" : "black";
 }
 
 // Do this the non-fancy way.
@@ -1644,8 +1623,6 @@ function button_color() {
 
 ***********************************************/
 
-type ClickHandler = (e: MouseEvent) => void;
-
 function opponent_card_color(): string {
     return "lavender";
 }
@@ -1678,7 +1655,6 @@ class PhysicalHandCard {
     }
 
     allow_dragging() {
-        const self = this;
         const div = this.card_span;
         const hand_card = this.hand_card;
 
@@ -2872,7 +2848,7 @@ class DragDropHelperSingleton {
             orig_top = div.offsetTop;
         }
 
-        function start_move(e: PointerEvent) {
+        function start_move() {
             div.style.position = "absolute";
             div.style.zIndex = "2";
         }
@@ -2920,7 +2896,7 @@ class DragDropHelperSingleton {
             if (!dragging) return false;
 
             if (!drag_started) {
-                start_move(e);
+                start_move();
                 div.style.cursor = "grabbing";
                 handle_dragstart();
                 drag_started = true;
@@ -3212,7 +3188,7 @@ class MainGamePage {
         const board_area = this.board_area;
 
         // simply creating the object starts the game!
-        const physical_game = new PhysicalGame({
+        new PhysicalGame({
             game,
             player_area: player_area,
             board_area: board_area,
