@@ -54,13 +54,18 @@ function build_event(raw_event: any): ZulipEvent | undefined {
 
     switch (raw_event.type) {
         case "message": {
-            const raw_message: any = raw_event.message;
+            const local_message_id = raw_event.local_message_id;
+            const raw_message = raw_event.message;
 
             if (raw_message.type === "stream") {
                 const topic = DB.topic_map.get_or_make_topic_for(
                     raw_message.stream_id,
                     raw_message.subject,
                 );
+
+                if (local_message_id) {
+                    console.log("local_message_id", local_message_id);
+                }
 
                 const unread =
                     raw_event.flags.find((flag: string) => flag === "read") ===
@@ -72,6 +77,7 @@ function build_event(raw_event: any): ZulipEvent | undefined {
                     github_refs: [],
                     id: raw_message.id,
                     is_super_new: true,
+                    local_message_id,
                     sender_id: raw_message.sender_id,
                     stream_id: raw_message.stream_id,
                     timestamp: raw_message.timestamp,

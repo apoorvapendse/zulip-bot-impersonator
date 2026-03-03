@@ -58,7 +58,6 @@ export class MessageList {
                 if (self.pending_index !== undefined) {
                     smart_list.scroll_index_to_top(self.pending_index);
                 } else {
-                    console.log("first unread");
                     self.maybe_go_to_first_unread();
                 }
             },

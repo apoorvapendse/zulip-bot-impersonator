@@ -67,6 +67,8 @@ export async function fetch_model_data(): Promise<Database> {
     const messages: Message[] = rows
         .filter((row: any) => row.type === "stream")
         .map((row: any) => {
+            const local_message_id = undefined; // is only in events
+
             const topic = topic_map.get_or_make_topic_for(
                 row.stream_id,
                 row.subject,
@@ -79,6 +81,7 @@ export async function fetch_model_data(): Promise<Database> {
                 github_refs: [],
                 id: row.id,
                 is_super_new: false,
+                local_message_id,
                 sender_id: row.sender_id,
                 stream_id: row.stream_id,
                 timestamp: row.timestamp,
