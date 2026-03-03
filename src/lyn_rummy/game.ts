@@ -350,7 +350,7 @@ function get_sorted_cards_for_suit(
     return suit_cards;
 }
 
-function build_full_double_deck(): Card[] {
+export function build_full_double_deck(): Card[] {
     // Returns a shuffled deck of 2 packs of normal cards.
 
     function suit_run(suit: Suit, origin_deck: OriginDeck) {
@@ -1136,8 +1136,8 @@ class Game {
     };
     has_victor_already: boolean;
 
-    constructor() {
-        TheDeck = new Deck(build_full_double_deck());
+    constructor(deck_cards: Card[]) {
+        TheDeck = new Deck(deck_cards);
 
         CurrentBoard = initial_board();
 
@@ -2200,10 +2200,10 @@ class BoardAreaSingleton {
 }
 
 class PhysicalGame {
-    constructor(info: { player_area: HTMLElement; board_area: HTMLElement }) {
-        const { player_area, board_area } = info;
+    constructor(info: { game: Game; player_area: HTMLElement; board_area: HTMLElement }) {
+        const { game, player_area, board_area } = info;
 
-        TheGame = new Game();
+        TheGame = game;
         EventManager = new EventManagerSingleton();
         PlayerArea = new PlayerAreaSingleton(player_area);
         BoardArea = new BoardAreaSingleton(board_area);
@@ -3073,10 +3073,12 @@ class StatusBarSingleton {
 }
 
 class MainGamePage {
+    game: Game;
     player_area!: HTMLElement;
     board_area!: HTMLElement;
 
-    constructor(container: HTMLElement) {
+    constructor(game: Game, container: HTMLElement) {
+        this.game = game;
         const page = document.createElement("div");
         page.style.display = "flex";
         page.style.paddingLeft = "50px";
@@ -3201,11 +3203,13 @@ class MainGamePage {
     }
 
     start_game_components(): void {
+        const game = this.game;
         const player_area = this.player_area;
         const board_area = this.board_area;
 
         // simply creating the object starts the game!
         const physical_game = new PhysicalGame({
+            game,
             player_area: player_area,
             board_area: board_area,
         });
@@ -3256,14 +3260,16 @@ function set_title() {
 export function gui() {
     set_title();
     const container = document.body;
-    run_game_code(container);
+    const deck_cards = build_full_double_deck();
+    run_game_code(deck_cards, container);
 }
 
-export function run_game_code(container: HTMLElement) {
+export function run_game_code(deck_cards: Card[], container: HTMLElement) {
     DragDropHelper = new DragDropHelperSingleton();
     Popup = new PopupSingleton();
     SoundEffects = new SoundEffectsSingleton();
-    new MainGamePage(container);
+    const game = new Game(deck_cards);
+    new MainGamePage(game, container);
 }
 
 function assert(
