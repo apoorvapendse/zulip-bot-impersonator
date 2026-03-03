@@ -3244,7 +3244,7 @@ class SoundEffectsSingleton {
 // SINGLETONS get initialized in gui().
 let SoundEffects: SoundEffectsSingleton;
 
-function get_title() {
+export function get_title() {
     return `${suit_emoji_str(Suit.DIAMOND)} Lyn Rummy ${suit_emoji_str(Suit.HEART)}`;
 }
 
