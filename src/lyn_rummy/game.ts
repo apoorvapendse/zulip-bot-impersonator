@@ -1300,9 +1300,17 @@ class GameEventTrackerSingleton {
             BoardArea.populate();
         }
 
-        const interval = 100;
-
         const game_events = this.game_events;
+
+        let interval = 1000;
+
+        if (game_events.length > 50) {
+            interval = 100;
+        } else if (game_events.length > 20) {
+            interval = 200;
+        } else if (game_events.length > 5) {
+            interval = 500;
+        }
 
         this.replay_in_progress = true;
 
