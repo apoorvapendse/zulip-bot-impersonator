@@ -107,6 +107,8 @@ type BoardEvent = {
     stacks_to_add: CardStack[];
 };
 
+type BroadcastCallback = (event: JsonGameEvent) => void;
+
 function is_pair_of_dups(card1: Card, card2: Card): boolean {
     // In a two-deck game, two cards can be both be
     // the Ace of Hearts, to use an example,
@@ -1205,16 +1207,7 @@ let TheGame: Game;
 class Game {
     has_victor_already: boolean;
 
-    constructor(deck_cards: Card[]) {
-        TheDeck = new Deck(deck_cards);
-
-        CurrentBoard = initial_board();
-
-        GameEventTracker = new GameEventTrackerSingleton();
-
-        PlayerGroup = new PlayerGroupSingleton(["Susan", "Lyn"]);
-        ActivePlayer.start_turn();
-
+    constructor() {
         this.has_victor_already = false;
     }
 
@@ -2305,14 +2298,11 @@ class BoardAreaSingleton {
 
 class PhysicalGame {
     constructor(info: {
-        game: Game;
         player_area: HTMLElement;
         board_area: HTMLElement;
     }) {
-        const { game, player_area, board_area } = info;
+        const { player_area, board_area } = info;
 
-        TheGame = game;
-        EventManager = new EventManagerSingleton();
         PlayerArea = new PlayerAreaSingleton(player_area);
         BoardArea = new BoardAreaSingleton(board_area);
         BoardArea.populate();
@@ -3190,12 +3180,10 @@ class StatusBarSingleton {
 }
 
 class MainGamePage {
-    game: Game;
     player_area!: HTMLElement;
     board_area!: HTMLElement;
 
-    constructor(game: Game, container: HTMLElement) {
-        this.game = game;
+    constructor(container: HTMLElement) {
         const page = document.createElement("div");
         page.style.display = "flex";
         page.style.paddingLeft = "50px";
@@ -3214,8 +3202,6 @@ class MainGamePage {
     make_top_line(): HTMLElement {
         const top = document.createElement("div");
         const top_bar = this.make_top_bar();
-
-        StatusBar = new StatusBarSingleton();
 
         top.append(top_bar);
         top.append(StatusBar.dom());
@@ -3320,13 +3306,11 @@ class MainGamePage {
     }
 
     start_game_components(): void {
-        const game = this.game;
         const player_area = this.player_area;
         const board_area = this.board_area;
 
         // simply creating the object starts the game!
         new PhysicalGame({
-            game,
             player_area: player_area,
             board_area: board_area,
         });
@@ -3378,15 +3362,28 @@ export function gui() {
     set_title();
     const container = document.body;
     const deck_cards = build_full_double_deck();
-    run_game_code(deck_cards, container);
+    const broadcast_callback = undefined;
+    start_game(deck_cards, container, broadcast_callback);
 }
 
-export function run_game_code(deck_cards: Card[], container: HTMLElement) {
+export function start_game(
+    deck_cards: Card[],
+    container: HTMLElement,
+    broadcast_callback: BroadcastCallback | undefined,
+) {
+    TheDeck = new Deck(deck_cards);
     DragDropHelper = new DragDropHelperSingleton();
     Popup = new PopupSingleton();
     SoundEffects = new SoundEffectsSingleton();
-    const game = new Game(deck_cards);
-    new MainGamePage(game, container);
+    StatusBar = new StatusBarSingleton();
+    EventManager = new EventManagerSingleton();
+    TheGame = new Game();
+    CurrentBoard = initial_board();
+    GameEventTracker = new GameEventTrackerSingleton();
+    PlayerGroup = new PlayerGroupSingleton(["Susan", "Lyn"]);
+    ActivePlayer.start_turn();
+
+    new MainGamePage(container);
 }
 
 function assert(

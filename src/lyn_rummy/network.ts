@@ -1,7 +1,19 @@
-import type { JsonCard } from "./game";
+import type { JsonCard, JsonGameEvent } from "./game";
 
 import * as model from "../backend/model";
 import * as zulip_client from "../backend/zulip_client";
+
+export class GameSession {
+    game_id: number;
+
+    constructor(game_id: number) {
+        this.game_id = game_id;
+    }
+
+    broadcast(json_game_event: JsonGameEvent) {
+        console.log("broadcast", json_game_event);
+    }
+}
 
 export function serialize_cards(json_cards: JsonCard[]): string | undefined {
     const stream_id = model.channel_id_for("Lyn Rummy");

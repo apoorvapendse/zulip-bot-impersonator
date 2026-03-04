@@ -42,6 +42,8 @@ function plugin(plugin_helper: PluginHelper, local_id: string | undefined) {
             if (local_message_id && local_message_id === local_id) {
                 game_id = event.message.id;
 
+                const game_session = new network.GameSession(game_id);
+
                 const json_cards = network.deserialize_cards(
                     event.message.content,
                 );
@@ -49,7 +51,7 @@ function plugin(plugin_helper: PluginHelper, local_id: string | undefined) {
                 if (json_cards) {
                     const deck_cards = json_cards.map(lyn_rummy.Card.from_json);
                     div.innerText = "";
-                    lyn_rummy.run_game_code(deck_cards, div);
+                    lyn_rummy.start_game(deck_cards, div, game_session.broadcast);
                 }
             }
         }
