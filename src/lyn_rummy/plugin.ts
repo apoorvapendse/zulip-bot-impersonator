@@ -56,11 +56,7 @@ function plugin(plugin_helper: PluginHelper, local_id: string | undefined) {
                 if (json_cards) {
                     const deck_cards = json_cards.map(lyn_rummy.Card.from_json);
                     div.innerText = "";
-                    lyn_rummy.start_game(
-                        deck_cards,
-                        div,
-                        broadcast,
-                    );
+                    lyn_rummy.start_game(deck_cards, div, broadcast);
                 }
             }
         }

@@ -37,7 +37,6 @@ function serialize_game_event(game_id: number, json_game_event: JsonGameEvent) {
     });
 }
 
-
 export function serialize_cards(json_cards: JsonCard[]): string | undefined {
     const stream_id = model.channel_id_for("Lyn Rummy");
     if (stream_id === undefined) {
