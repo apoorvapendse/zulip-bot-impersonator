@@ -1,5 +1,9 @@
 ## Initial setup
 
+Install vite:
+
+`npm install vite --save-dev`
+
 Install oxlint:
 
 `npm add -D oxlint`
