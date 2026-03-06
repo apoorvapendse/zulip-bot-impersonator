@@ -29,10 +29,10 @@ Install biome:
 
 I usually keep 4 terminals open:
 
-* npm run dev # listens on 7888 usually
-* npx tsc -w --noEmit # shows TS errors
-* <editor>
-* <git, etc.>
+* `npm run dev` # listens on 7888 usually
+* `npx tsc -w --noEmit` # shows TS errors
+* run my editor
+* use git commands (and other command-line stuff)
 
 
 I also lint every now and then:
@@ -44,6 +44,10 @@ I also lint every now and then:
 * npm run test
 
 ## Server stuff (in progress)
+
+We don't really use a server yet, but for node
+code you can try resurrecting `server.js`. At some
+point it was working.
 
 I did:
 
