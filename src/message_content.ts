@@ -140,7 +140,7 @@ function fix_anchor_links(ele: HTMLAnchorElement) {
     const a_href = ele.getAttribute("href");
 
     console.log("a_href", a_href);
-    console.log("origin", window.location.origin);
+    console.log("location", window.location);
 
     if (!a_href || a_href === "http://") {
         // This happens with an empty link. This is a quick hack to ignore
