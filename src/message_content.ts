@@ -139,6 +139,9 @@ function fix_in_site_link(anchor_elem: HTMLAnchorElement) {
 function fix_anchor_links(ele: HTMLAnchorElement) {
     const a_href = ele.getAttribute("href");
 
+    console.log("a_href", a_href);
+    console.log("origin", window.location.origin);
+
     if (!a_href || a_href === "http://") {
         // This happens with an empty link. This is a quick hack to ignore
         // it.
