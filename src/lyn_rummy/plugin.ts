@@ -3,7 +3,7 @@ import type { PluginHelper } from "../plugin_helper";
 
 import { EventFlavor } from "../backend/event";
 
-import type { JsonGameEvent } from "./game";
+import type { JsonCard, JsonGameEvent } from "./game";
 
 import * as lyn_rummy from "./game";
 import * as network from "./network";
@@ -43,20 +43,14 @@ function plugin(plugin_helper: PluginHelper, local_id: string | undefined) {
 
             if (!game_id && local_message_id && local_message_id === local_id) {
                 game_id = event.message.id;
-                const game_session = new network.GameSession(game_id);
 
                 const json_cards = network.deserialize_cards(
                     event.message.content,
                 );
 
-                function broadcast(json_game_event: JsonGameEvent) {
-                    game_session.broadcast(json_game_event);
-                }
-
                 if (json_cards) {
-                    const deck_cards = json_cards.map(lyn_rummy.Card.from_json);
                     div.innerText = "";
-                    lyn_rummy.start_game(deck_cards, div, broadcast);
+                    start_new_game(game_id, json_cards, div);
                 }
             }
         }
@@ -66,4 +60,15 @@ function plugin(plugin_helper: PluginHelper, local_id: string | undefined) {
         div,
         handle_event,
     };
+}
+
+function start_new_game(game_id: number, json_cards: JsonCard[], div: HTMLDivElement) {
+    const game_session = new network.GameSession(game_id);
+
+    function broadcast(json_game_event: JsonGameEvent) {
+        game_session.broadcast(json_game_event);
+    }
+
+    const deck_cards = json_cards.map(lyn_rummy.Card.from_json);
+    lyn_rummy.start_game(deck_cards, div, broadcast);
 }
