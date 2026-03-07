@@ -12,7 +12,9 @@ import { Page } from "./page";
 import * as game from "./lyn_rummy/game";
 
 function is_lyn_rummy_user(): boolean {
-    const parts = window.location.pathname.split("/").filter((part) => part !== "");
+    const parts = window.location.pathname
+        .split("/")
+        .filter((part) => part !== "");
 
     return parts.length > 0 && parts[parts.length - 1] === "LynRummy";
 }

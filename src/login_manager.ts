@@ -38,11 +38,7 @@ class LoginManager {
         submit_btn.type = "submit";
         submit_btn.innerText = "Save and Login";
 
-        form.append(
-            email_info.div,
-            api_key_info.div,
-            submit_btn,
-        );
+        form.append(email_info.div, api_key_info.div, submit_btn);
 
         form.onsubmit = (e) => {
             // Prevent page reload
@@ -64,7 +60,7 @@ class LoginManager {
     private create_input_box(
         type: string,
         label: string,
-    ): { div: HTMLDivElement, input: HTMLInputElement } {
+    ): { div: HTMLDivElement; input: HTMLInputElement } {
         const field = document.createElement("div");
         field.innerText = label;
         field.style.width = "120px";

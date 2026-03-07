@@ -153,7 +153,7 @@ function fix_anchor_links(ele: HTMLAnchorElement) {
     }
 
     function slash_join(s1: string, s2: string): string {
-        return s1.replace(/\/+$/, '') + "/" + s2.replace(/^\/+/, '');
+        return s1.replace(/\/+$/, "") + "/" + s2.replace(/^\/+/, "");
     }
 
     if (a_href.startsWith("/")) {

@@ -40,7 +40,6 @@ export function plugin(plugin_helper: PluginHelper) {
     landing_div.append(button);
     div.append(landing_div);
 
-
     function handle_event(event: ZulipEvent) {
         if (game_launcher) {
             game_launcher.handle_event(event);
@@ -93,16 +92,17 @@ class GameLauncher {
     }
 }
 
-function get_game_start(event: ZulipEvent, local_id: string): GameStart | undefined {
+function get_game_start(
+    event: ZulipEvent,
+    local_id: string,
+): GameStart | undefined {
     if (event.flavor === EventFlavor.MESSAGE) {
         const local_message_id = event.message.local_message_id;
 
         if (local_message_id && local_message_id === local_id) {
             const game_id = event.message.id;
 
-            const json_cards = network.deserialize_cards(
-                event.message.content,
-            );
+            const json_cards = network.deserialize_cards(event.message.content);
 
             if (json_cards) {
                 return {
@@ -115,7 +115,11 @@ function get_game_start(event: ZulipEvent, local_id: string): GameStart | undefi
     return undefined;
 }
 
-function start_new_game(game_id: number, json_cards: JsonCard[], div: HTMLDivElement) {
+function start_new_game(
+    game_id: number,
+    json_cards: JsonCard[],
+    div: HTMLDivElement,
+) {
     const game_session = new network.GameSession(game_id);
 
     function broadcast(json_game_event: JsonGameEvent) {

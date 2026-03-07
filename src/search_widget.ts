@@ -99,7 +99,9 @@ export class SearchWidget {
             case AddressType.NADA: {
                 this.update_button_panel();
                 this.update_label();
-                StatusBar.inform("Begin finding messages by clicking on a channel.");
+                StatusBar.inform(
+                    "Begin finding messages by clicking on a channel.",
+                );
                 return;
             }
 

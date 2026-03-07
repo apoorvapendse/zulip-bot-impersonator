@@ -35,7 +35,6 @@ export function address_type(address: Address): AddressType {
     return AddressType.NADA;
 }
 
-
 function unescape(str: string) {
     return decodeURIComponent(str.replace(/\./g, "%"));
 }
@@ -59,7 +58,9 @@ export function parse_path(path: string): PathInfo | undefined {
         topic_part !== undefined ? unescape(topic_part) : undefined;
 
     const message_id =
-        (message_part && (with_near === "near")) ? parseInt(message_part) : undefined;
+        message_part && with_near === "near"
+            ? parseInt(message_part)
+            : undefined;
 
     return { channel_id, topic_name, message_id };
 }
