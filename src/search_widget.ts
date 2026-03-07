@@ -98,14 +98,30 @@ export class SearchWidget {
             if (start_address.channel_id === undefined) {
                 throw new Error("unexpected");
             }
-            this.update_channel();
+
+            const channel_row = this.get_channel_row();
+            console.log("channel_row", channel_row);
+
+            // ChannelView will add panes
+            this.channel_view = new ChannelView(
+                channel_row,
+                self,
+                pane_manager,
+            );
+
             this.channel_view!.select_topic_id(start_address.topic_id);
-            this.update_topic();
 
             if (start_address.message_id) {
                 const message_list = this.get_message_list()!;
                 message_list.go_to_message_id(start_address.message_id);
+                StatusBar.inform("You can read or reply now.");
+            } else {
+                StatusBar.inform("You can click on a topic now.");
+                return;
             }
+
+            this.update_button_panel();
+            this.update_label();
 
             return;
         }

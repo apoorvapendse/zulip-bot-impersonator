@@ -78,7 +78,6 @@ function fix_videos(video: HTMLVideoElement) {
 
     async function use_temporary_url() {
         const temp_src = await get_temporary_upload(src);
-        console.log("set video src", video.src);
         video.src = temp_src;
         video.style.width = "90%";
         const a_tag = video.closest("a");
@@ -131,8 +130,6 @@ function fix_in_site_link(anchor_elem: HTMLAnchorElement) {
         const path = anchor_elem.getAttribute("href")!;
         const addr = address.get_address_from_path(path);
 
-        console.log("addr in fix_in_site_link", addr);
-
         if (addr) {
             APP.add_search_widget(addr);
         } else {
@@ -155,16 +152,12 @@ function fix_anchor_links(ele: HTMLAnchorElement) {
         return;
     }
 
-    console.log("a_href", a_href);
-    console.log("location", window.location);
-
     function slash_join(s1: string, s2: string): string {
         return s1.replace(/\/+$/, '') + "/" + s2.replace(/^\/+/, '');
     }
 
     if (a_href.startsWith("/")) {
         ele.href = slash_join(config.get_current_realm_url(), a_href);
-        console.log("patched to realm url", ele.href);
     }
 
     ele.setAttribute("target", "_blank");
