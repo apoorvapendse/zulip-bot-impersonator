@@ -159,7 +159,7 @@ function fix_anchor_links(ele: HTMLAnchorElement) {
     console.log("location", window.location);
 
     if (a_href.startsWith("/")) {
-        ele.href = config.get_current_realm_url() + a_href.slice(1);
+        ele.href = config.get_current_realm_url().replace(/\/+$/, '') + "/" + a_href.replace(/^\/+/, '')
         console.log("patched to realm url", ele.href);
     }
 
