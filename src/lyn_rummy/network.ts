@@ -7,35 +7,6 @@ import { topic_filter } from "../backend/filter";
 import * as model from "../backend/model";
 import * as zulip_client from "../backend/zulip_client";
 
-export class GameSession {
-    game_id: number;
-    channel_id: number;
-
-    constructor(info: { game_id: number; channel_id: number }) {
-        const { game_id, channel_id } = info;
-        this.game_id = game_id;
-        this.channel_id = channel_id;
-        console.log("CONSTRUCTOR", game_id, this.game_id);
-    }
-
-    broadcast(json_game_event: JsonGameEvent) {
-        const game_id = this.game_id;
-        const channel_id = this.channel_id;
-        serialize({
-            channel_id,
-            category: "game_events",
-            key: game_id.toString(),
-            content_label: "lynrummy-event",
-            value: json_game_event,
-            message_callback: (_message) => {},
-        });
-    }
-
-    get_events(): JsonGameEvent[] {
-        return deserialize_game_events(this.game_id);
-    }
-}
-
 function get_topic_id_for_game(game_id: number): number | undefined {
     const channel_id = model.channel_id_for("Lyn Rummy");
     if (channel_id === undefined) {
@@ -47,7 +18,7 @@ function get_topic_id_for_game(game_id: number): number | undefined {
     return DB.topic_map.get_topic_id(channel_id, topic_name);
 }
 
-function deserialize_game_events(game_id: number): JsonGameEvent[] {
+export function deserialize_game_events(game_id: number): JsonGameEvent[] {
     const topic_id = get_topic_id_for_game(game_id);
 
     if (topic_id === undefined) {

@@ -2,9 +2,12 @@ import type { Message } from "../backend/db_types";
 import type { ZulipEvent } from "../backend/event";
 import type { PluginHelper } from "../plugin_helper";
 
+import type { JsonCard, JsonGameEvent } from "./game";
+
 import { Button } from "../button";
 import { MessageRow } from "../row_types";
-import type { JsonCard, JsonGameEvent } from "./game";
+
+import { GameSession } from "./game_session";
 
 import * as lyn_rummy from "./game";
 import * as model from "../backend/model";
@@ -93,7 +96,7 @@ function start_new_game(
         return;
     }
 
-    const game_session = new network.GameSession({ game_id, channel_id });
+    const game_session = new GameSession({ game_id, channel_id });
 
     function broadcast(json_game_event: JsonGameEvent) {
         game_session.broadcast(json_game_event);
