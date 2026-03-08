@@ -4,8 +4,6 @@ import type { PluginHelper } from "../plugin_helper";
 
 import { Button } from "../button";
 import { MessageRow } from "../row_types";
-import { EventFlavor } from "../backend/event";
-
 import type { JsonCard, JsonGameEvent } from "./game";
 
 import * as lyn_rummy from "./game";
@@ -24,12 +22,10 @@ export function plugin(plugin_helper: PluginHelper) {
 
     plugin_helper.update_label(lyn_rummy.get_title());
 
-    let game_launcher: GameLauncher;
-
     const button = new Button("Launch new game", 150, () => {
         div.innerHTML = "";
         div.innerText = "waiting on server";
-        game_launcher = new GameLauncher(div);
+        new GameLauncher(div);
     });
 
     landing_div.append(button.div);

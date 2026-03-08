@@ -194,4 +194,3 @@ export function handle_event(event: ZulipEvent): void {
         }
     }
 }
-
