@@ -15,8 +15,11 @@ export class GameSession {
     }
 
     broadcast(json_game_event: JsonGameEvent) {
-        console.log("pass game_id", this.game_id);
         serialize_game_event(this.game_id, json_game_event);
+    }
+
+    get_events(): JsonGameEvent[] {
+        return deserialize_game_events(this.game_id);
     }
 }
 
@@ -27,8 +30,6 @@ function serialize_game_event(game_id: number, json_game_event: JsonGameEvent) {
         return undefined;
     }
 
-    console.log("game_id in serialize", game_id);
-
     const topic_name = `__game_events_${game_id}__`;
     const json = JSON.stringify(json_game_event);
     const content = `~~~ lynrummy-event\n${json}`;
@@ -38,6 +39,53 @@ function serialize_game_event(game_id: number, json_game_event: JsonGameEvent) {
         topic_name,
         content,
     });
+}
+
+function get_topic_id_for_game(game_id: number): number | undefined {
+    const channel_id = model.channel_id_for("Lyn Rummy");
+    if (channel_id === undefined) {
+        console.log("could not find stream");
+        return undefined;
+    }
+
+    const topic_name = `__game_events_${game_id}__`;
+    return DB.topic_map.get_topic_id(channel_id, topic_name);
+}
+
+function deserialize_game_events(game_id: number): JsonGameEvent[] {
+    const topic_id = get_topic_id_for_game(game_id);
+
+    if (topic_id === undefined) {
+        return [];
+    }
+
+    console.log("deserialize topic_id", topic_id);
+
+    const filter = topic_filter(topic_id);
+    const messages = model.filtered_messages(filter);
+
+    messages.sort((m1, m2) => m1.id - m2.id);
+
+    const json_events = [];
+    const parser = new DOMParser();
+
+    for (const message of messages) {
+        const doc = parser.parseFromString(message.content, "text/html");
+
+        const div = doc.querySelector("div.codehilite");
+        if (
+            div &&
+            div.getAttribute("data-code-language") === "lynrummy-event"
+        ) {
+            const pre = div.querySelector("pre");
+            if (pre) {
+                const json_event = JSON.parse(pre.innerText);
+                json_events.push(json_event);
+            }
+        }
+    }
+
+    return json_events;
 }
 
 export function serialize_cards(json_cards: JsonCard[]): string | undefined {

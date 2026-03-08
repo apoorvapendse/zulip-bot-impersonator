@@ -33,7 +33,7 @@ export class TopicMap {
         return topic;
     }
 
-    get_topic_id(channel_id: number, topic_name: string) {
+    get_topic_id(channel_id: number, topic_name: string): number {
         return this.get_or_make_topic_for(channel_id, topic_name).topic_id;
     }
 }

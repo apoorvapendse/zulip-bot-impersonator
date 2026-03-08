@@ -89,7 +89,13 @@ class GameLauncher {
         if (game_start) {
             this.game_id = game_start.game_id;
             div.innerHTML = "";
-            start_new_game(this.game_id, game_start.json_cards, div);
+            const is_spectator = false;
+            start_new_game(
+                this.game_id,
+                game_start.json_cards,
+                div,
+                is_spectator,
+            );
         }
     }
 }
@@ -121,6 +127,7 @@ function start_new_game(
     game_id: number,
     json_cards: JsonCard[],
     div: HTMLDivElement,
+    is_spectator: boolean,
 ) {
     const game_session = new network.GameSession(game_id);
 
@@ -130,6 +137,11 @@ function start_new_game(
 
     const deck_cards = json_cards.map(lyn_rummy.Card.from_json);
     lyn_rummy.start_game(deck_cards, div, broadcast);
+
+    if (is_spectator) {
+        const json_events = game_session.get_events();
+        console.log("json_events", json_events);
+    }
 }
 
 class GameFinder {
@@ -164,7 +176,8 @@ class GameFinder {
             150,
             () => {
                 div.innerHTML = "";
-                start_new_game(game_id, json_cards, div);
+                const is_spectator = true;
+                start_new_game(game_id, json_cards, div, is_spectator);
             },
         );
 
