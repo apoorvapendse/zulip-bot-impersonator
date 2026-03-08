@@ -87,6 +87,11 @@ export type JsonCardStack = {
     loc: BoardLocation;
 };
 
+export type JsonBoardEvent = {
+    stacks_to_remove: JsonCardStack[];
+    stacks_to_add: JsonCardStack[];
+};
+
 export type JsonPlayerAction = {
     board_event: BoardEvent;
     hand_cards_to_release: JsonHandCard[];
@@ -94,17 +99,12 @@ export type JsonPlayerAction = {
 
 export type JsonGameEvent = {
     type: GameEventType;
-    player_action: PlayerAction | undefined;
+    player_action: JsonPlayerAction | undefined;
 };
 
 type BoardLocation = {
     top: number;
     left: number;
-};
-
-type BoardEvent = {
-    stacks_to_remove: CardStack[];
-    stacks_to_add: CardStack[];
 };
 
 type BroadcastCallback = (event: JsonGameEvent) => void;
@@ -541,12 +541,14 @@ class CardStack {
 
     toJSON(): JsonCardStack {
         return {
-            board_cards: this.board_cards,
+            board_cards: this.board_cards.map((board_card) =>
+                board_card.toJSON(),
+            ),
             loc: this.loc,
         };
     }
 
-    from_json(json: JsonCardStack): CardStack {
+    static from_json(json: JsonCardStack): CardStack {
         return new CardStack(
             json.board_cards.map((board_card_json) =>
                 BoardCard.from_json(board_card_json),
@@ -1263,14 +1265,50 @@ class Game {
 
     reverse_player_action(player_action: PlayerAction): void {
         const orig_board_event = player_action.board_event;
-        CurrentBoard.process_event({
-            stacks_to_remove: orig_board_event.stacks_to_add,
-            stacks_to_add: orig_board_event.stacks_to_remove,
-        });
+        CurrentBoard.process_event(
+            new BoardEvent({
+                stacks_to_remove: orig_board_event.stacks_to_add,
+                stacks_to_add: orig_board_event.stacks_to_remove,
+            }),
+        );
 
         for (const hand_card of player_action.hand_cards_to_release) {
             ActivePlayer.take_card_back(hand_card);
         }
+    }
+}
+
+class BoardEvent {
+    stacks_to_remove: CardStack[];
+    stacks_to_add: CardStack[];
+
+    constructor(info: {
+        stacks_to_remove: CardStack[];
+        stacks_to_add: CardStack[];
+    }) {
+        this.stacks_to_remove = info.stacks_to_remove;
+        this.stacks_to_add = info.stacks_to_add;
+    }
+
+    toJSON(): JsonBoardEvent {
+        return {
+            stacks_to_remove: this.stacks_to_remove.map((stack) =>
+                stack.toJSON(),
+            ),
+            stacks_to_add: this.stacks_to_add.map((stack) => stack.toJSON()),
+        };
+    }
+
+    static from_json(json: JsonBoardEvent): BoardEvent {
+        const stacks_to_remove = json.stacks_to_remove.map((stack) => {
+            return CardStack.from_json(stack);
+        });
+
+        const stacks_to_add = json.stacks_to_add.map((stack) => {
+            return CardStack.from_json(stack);
+        });
+
+        return new BoardEvent({ stacks_to_remove, stacks_to_add });
     }
 }
 
@@ -1298,7 +1336,7 @@ class PlayerAction {
     }
 
     static from_json(json: JsonPlayerAction) {
-        const board_event = json.board_event;
+        const board_event = BoardEvent.from_json(json.board_event);
         const hand_cards_to_release = json.hand_cards_to_release.map(
             (json_hand_card) => HandCard.from_json(json_hand_card),
         );
@@ -1345,6 +1383,14 @@ class GameEventTrackerSingleton {
 
     empty() {
         return this.json_game_events.length === 0;
+    }
+
+    handle_initial_events(json_game_events: JsonGameEvent[]): void {
+        for (const json_game_event of json_game_events) {
+            this.json_game_events.push(json_game_event);
+        }
+
+        this.replay();
     }
 
     push_event(game_event: GameEvent) {
@@ -1418,6 +1464,7 @@ class GameEventTrackerSingleton {
             }
 
             const game_event = game_events[i];
+            console.log("in replay", game_event);
 
             switch (game_event.type) {
                 case GameEventType.PLAYER_ACTION:
@@ -1456,11 +1503,16 @@ class GameEvent {
     }
 
     toJSON(): JsonGameEvent {
-        return { type: this.type, player_action: this.player_action };
+        const json_player_action = this.player_action?.toJSON();
+        return { type: this.type, player_action: json_player_action };
     }
 
     static from_json(json: JsonGameEvent): GameEvent {
-        return new GameEvent(json.type, json.player_action);
+        const type = json.type;
+        const player_action = json.player_action
+            ? PlayerAction.from_json(json.player_action)
+            : undefined;
+        return new GameEvent(type, player_action);
     }
 }
 
@@ -1788,10 +1840,10 @@ class PhysicalHandCard {
                 const loc = loc_on_board(div);
                 const new_stack = CardStack.from_hand_card(hand_card, loc);
                 const player_action = PlayerAction.hand_card_action({
-                    board_event: {
+                    board_event: new BoardEvent({
                         stacks_to_remove: [],
                         stacks_to_add: [new_stack],
-                    },
+                    }),
                     hand_cards_to_release: [hand_card],
                 });
                 EventManager.place_hand_card_on_board(player_action);
@@ -1834,10 +1886,12 @@ class PhysicalBoardCard {
                     return;
                 }
                 const stacks_to_add = card_stack.split(card_index);
-                const player_action = PlayerAction.board_action({
-                    stacks_to_remove: [card_stack],
-                    stacks_to_add,
-                });
+                const player_action = PlayerAction.board_action(
+                    new BoardEvent({
+                        stacks_to_remove: [card_stack],
+                        stacks_to_add,
+                    }),
+                );
                 EventManager.split_stack(player_action);
             },
         });
@@ -1929,10 +1983,10 @@ class PhysicalCardStack {
         }
 
         const player_action = PlayerAction.hand_card_action({
-            board_event: {
+            board_event: new BoardEvent({
                 stacks_to_remove: [this.stack],
                 stacks_to_add: [new_stack],
-            },
+            }),
             hand_cards_to_release: [hand_card],
         });
 
@@ -1949,10 +2003,10 @@ class PhysicalCardStack {
         }
 
         const player_action = PlayerAction.hand_card_action({
-            board_event: {
+            board_event: new BoardEvent({
                 stacks_to_remove: [this.stack],
                 stacks_to_add: [new_stack],
-            },
+            }),
             hand_cards_to_release: [hand_card],
         });
 
@@ -1966,10 +2020,12 @@ class PhysicalCardStack {
             return;
         }
 
-        const player_action = PlayerAction.board_action({
-            stacks_to_remove: [this.stack, other_stack],
-            stacks_to_add: [new_stack],
-        });
+        const player_action = PlayerAction.board_action(
+            new BoardEvent({
+                stacks_to_remove: [this.stack, other_stack],
+                stacks_to_add: [new_stack],
+            }),
+        );
 
         this.prep_left_merge(player_action);
     }
@@ -1981,10 +2037,12 @@ class PhysicalCardStack {
             return;
         }
 
-        const player_action = PlayerAction.board_action({
-            stacks_to_remove: [this.stack, other_stack],
-            stacks_to_add: [new_stack],
-        });
+        const player_action = PlayerAction.board_action(
+            new BoardEvent({
+                stacks_to_remove: [this.stack, other_stack],
+                stacks_to_add: [new_stack],
+            }),
+        );
 
         this.prep_right_merge(player_action);
     }
@@ -2050,10 +2108,12 @@ class PhysicalCardStack {
                     top: parseFloat(div.style.top),
                 };
                 const new_stack = new CardStack(card_stack.board_cards, loc);
-                const player_action = PlayerAction.board_action({
-                    stacks_to_remove: [card_stack],
-                    stacks_to_add: [new_stack],
-                });
+                const player_action = PlayerAction.board_action(
+                    new BoardEvent({
+                        stacks_to_remove: [card_stack],
+                        stacks_to_add: [new_stack],
+                    }),
+                );
                 EventManager.move_stack(player_action);
             },
         });
@@ -2743,10 +2803,6 @@ class DialogShell {
     }
 }
 
-// We reuse the same popup structure every time and
-// just repopulate the innards. We instantiate this
-// in gui (so we can even use it in LandingPage if
-// we ever want to).
 let Popup: PopupSingleton;
 
 class PopupSingleton {
@@ -3354,7 +3410,6 @@ class SoundEffectsSingleton {
     }
 }
 
-// SINGLETONS get initialized in gui().
 let SoundEffects: SoundEffectsSingleton;
 
 export function get_title() {
@@ -3371,13 +3426,14 @@ export function gui() {
     const container = document.body;
     const deck_cards = build_full_double_deck();
     const broadcast_callback = undefined;
-    start_game(deck_cards, container, broadcast_callback);
+    start_game(deck_cards, container, broadcast_callback, []);
 }
 
 export function start_game(
     deck_cards: Card[],
     container: HTMLElement,
     broadcast_callback: BroadcastCallback | undefined,
+    json_game_events: JsonGameEvent[],
 ) {
     TheDeck = new Deck(deck_cards);
     DragDropHelper = new DragDropHelperSingleton();
@@ -3390,8 +3446,9 @@ export function start_game(
     GameEventTracker = new GameEventTrackerSingleton(broadcast_callback);
     PlayerGroup = new PlayerGroupSingleton(["Susan", "Lyn"]);
     ActivePlayer.start_turn();
-
     new MainGamePage(container);
+
+    GameEventTracker.handle_initial_events(json_game_events);
 }
 
 function assert(

@@ -102,13 +102,10 @@ function start_new_game(
         game_session.broadcast(json_game_event);
     }
 
-    const deck_cards = json_cards.map(lyn_rummy.Card.from_json);
-    lyn_rummy.start_game(deck_cards, div, broadcast);
+    const json_events = is_spectator ? game_session.get_events() : [];
 
-    if (is_spectator) {
-        const json_events = game_session.get_events();
-        console.log("json_events", json_events);
-    }
+    const deck_cards = json_cards.map(lyn_rummy.Card.from_json);
+    lyn_rummy.start_game(deck_cards, div, broadcast, json_events);
 }
 
 class GameFinder {
