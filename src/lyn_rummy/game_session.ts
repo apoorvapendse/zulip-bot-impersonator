@@ -26,6 +26,20 @@ export class GameSession {
     }
 
     get_events(): JsonGameEvent[] {
-        return network.deserialize_game_events(this.game_id);
+        const channel_id = this.channel_id;
+        const game_id = this.game_id;
+
+        const category = "game_events";
+        const content_label = "lynrummy-event";
+        const key = game_id.toString();
+
+        const rows = network.get_rows_for_category({
+            channel_id,
+            category,
+            key,
+            content_label,
+        });
+
+        return rows.map((row) => JSON.parse(row.value_string));
     }
 }

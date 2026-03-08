@@ -1,4 +1,3 @@
-import type { JsonGameEvent } from "./game";
 import type { Message } from "../backend/db_types";
 import type { MessageCallback } from "../backend/zulip_client";
 
@@ -6,27 +5,6 @@ import { DB } from "../backend/database";
 import { topic_filter } from "../backend/filter";
 import * as model from "../backend/model";
 import * as zulip_client from "../backend/zulip_client";
-
-export function deserialize_game_events(game_id: number): JsonGameEvent[] {
-    const channel_id = model.channel_id_for("Lyn Rummy");
-    if (channel_id === undefined) {
-        console.log("could not find stream");
-        return [];
-    }
-
-    const category = "game_events";
-    const content_label = "lynrummy-event";
-    const key = game_id.toString();
-
-    const rows = get_rows_for_category({
-        channel_id,
-        category,
-        key,
-        content_label,
-    });
-
-    return rows.map((row) => JSON.parse(row.value_string));
-}
 
 export function get_rows_for_category(info: {
     channel_id: number;
