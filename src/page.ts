@@ -142,7 +142,7 @@ export class Page {
         this.add_plugin(search_widget.plugin_maker_for_address(address));
     }
 
-    handle_event(event: ZulipEvent): void {
+    handle_zulip_event(event: ZulipEvent): void {
         if (event.flavor === EventFlavor.MESSAGE) {
             const message_row = new MessageRow(event.message);
             const sender_name = message_row.sender_name();
@@ -175,7 +175,7 @@ export class Page {
         }
 
         for (const plugin_helper of this.plugin_helpers) {
-            plugin_helper.handle_event(event);
+            plugin_helper.handle_zulip_event(event);
         }
 
         this.update_title();

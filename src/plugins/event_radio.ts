@@ -15,6 +15,8 @@ class EventRadio {
     plugin_helper: PluginHelper;
 
     constructor(plugin_helper: PluginHelper) {
+        const self = this;
+
         this.plugin_helper = plugin_helper;
         plugin_helper.update_label("Events");
 
@@ -27,9 +29,13 @@ class EventRadio {
         div.append(heading);
 
         this.div = div;
+
+        plugin_helper.set_zulip_event_listener((event) => {
+            self.handle_zulip_event(event);
+        });
     }
 
-    handle_event(event: ZulipEvent): void {
+    handle_zulip_event(event: ZulipEvent): void {
         const div = this.div;
 
         if (event.flavor === EventFlavor.MESSAGE) {

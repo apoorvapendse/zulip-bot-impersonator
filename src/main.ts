@@ -43,7 +43,7 @@ export async function run() {
     // do before fetching to get "spinner"
     const page = new Page();
 
-    function handle_event(event: ZulipEvent) {
+    function handle_zulip_event(event: ZulipEvent) {
         // Reconcile outbound messages with their inbound events.
         zulip_client.handle_event(event);
 
@@ -52,10 +52,10 @@ export async function run() {
         database.handle_event(event);
 
         // The Page object dispatches events to all the plugins.
-        page.handle_event(event);
+        page.handle_zulip_event(event);
     }
 
-    const event_manager = new EventHandler(handle_event);
+    const event_manager = new EventHandler(handle_zulip_event);
 
     // we wait for register to finish, but then polling goes
     // on "forever" asynchronously

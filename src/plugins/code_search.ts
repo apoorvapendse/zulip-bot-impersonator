@@ -34,10 +34,5 @@ export function plugin(plugin_helper: PluginHelper) {
 
     div.append(message_list.div);
 
-    function handle_event(_event: ZulipEvent) {}
-
-    return {
-        div,
-        handle_event,
-    };
+    return { div };
 }

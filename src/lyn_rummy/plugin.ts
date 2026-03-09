@@ -37,12 +37,7 @@ export function plugin(plugin_helper: PluginHelper) {
 
     new GameFinder(div, landing_div);
 
-    function handle_event(_event: ZulipEvent) {}
-
-    return {
-        div,
-        handle_event,
-    };
+    return { div };
 }
 
 class GameLauncher {

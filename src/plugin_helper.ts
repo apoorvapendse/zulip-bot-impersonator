@@ -6,10 +6,11 @@ import { TabButton } from "./tab_button";
 
 export type Plugin = {
     div: HTMLDivElement;
-    handle_event: (event: ZulipEvent) => void;
 };
 
 export type PluginMaker = (plugin_helper: PluginHelper) => Plugin;
+
+type ZulipEventListener = (event: ZulipEvent) => void;
 
 export class PluginHelper {
     div: HTMLDivElement;
@@ -19,6 +20,7 @@ export class PluginHelper {
     label: string;
     tab_button: TabButton;
     plugin: Plugin;
+    zulip_event_listener?: ZulipEventListener;
 
     constructor(plugin_maker: PluginMaker, page: Page) {
         const div = document.createElement("div");
@@ -36,8 +38,17 @@ export class PluginHelper {
         this.plugin = plugin;
     }
 
-    handle_event(event: ZulipEvent) {
-        this.plugin.handle_event(event);
+    set_zulip_event_listener(listener: ZulipEventListener): void {
+        if (this.zulip_event_listener) {
+            console.error("We only support one listener at a time.");
+        }
+        this.zulip_event_listener = listener;
+    }
+
+    handle_zulip_event(event: ZulipEvent) {
+        if (this.zulip_event_listener) {
+            this.zulip_event_listener(event);
+        }
     }
 
     delete_me(): void {

@@ -29,9 +29,5 @@ export function plugin(plugin_helper: PluginHelper) {
 
     plugin_helper.update_label("Plugins");
 
-    function handle_event(_event: ZulipEvent): void {
-        // nothing to do
-    }
-
-    return { div, handle_event };
+    return { div };
 }

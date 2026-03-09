@@ -43,7 +43,11 @@ function narrow_label(
 
 export function plugin_maker_for_address(start_address: Address) {
     function maker(plugin_helper: PluginHelper) {
-        return new SearchWidget(plugin_helper, start_address);
+        const search_widget = new SearchWidget(plugin_helper, start_address);
+        plugin_helper.set_zulip_event_listener((event) => {
+            search_widget.handle_zulip_event(event);
+        });
+        return search_widget;
     }
 
     return maker;
@@ -351,7 +355,7 @@ export class SearchWidget {
         this.plugin_helper!.delete_me();
     }
 
-    handle_event(event: ZulipEvent): void {
+    handle_zulip_event(event: ZulipEvent): void {
         if (event.flavor === EventFlavor.MESSAGE) {
             this.handle_incoming_message(event.message);
         }
