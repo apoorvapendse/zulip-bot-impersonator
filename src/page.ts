@@ -175,7 +175,7 @@ export class Page {
         }
 
         for (const plugin_helper of this.plugin_helpers) {
-            plugin_helper.get_plugin().handle_event(event);
+            plugin_helper.handle_event(event);
         }
 
         this.update_title();

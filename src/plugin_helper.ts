@@ -36,8 +36,8 @@ export class PluginHelper {
         this.plugin = plugin;
     }
 
-    get_plugin(): Plugin {
-        return this.plugin;
+    handle_event(event: ZulipEvent) {
+        this.plugin.handle_event(event);
     }
 
     delete_me(): void {
