@@ -1,13 +1,11 @@
-import type { Message, Reaction, Stream, User } from "./db_types";
+import type { Message, Stream, User } from "./db_types";
 
 import * as config from "../config";
 import { Database } from "./database";
+import * as message_fetch from "./message_fetch";
 import { MessageIndex } from "./message_index";
 import { TopicMap } from "./topic_map";
-import * as parse from "./parse";
 import * as zulip_client from "./zulip_client";
-
-const BATCH_SIZE = 5000;
 
 async function fetch_streams(): Promise<Stream[]> {
     const subscriptions = await zulip_client.get_subscriptions();
@@ -36,34 +34,6 @@ async function fetch_users(): Promise<User[]> {
     });
 }
 
-export function convert_server_reactions(
-    reactions: any[],
-    message_id: number,
-): Reaction[] {
-    const raw_reactions = reactions.filter(
-        (reaction: any) => reaction.reaction_type === "unicode_emoji",
-    );
-    // Maps emoji name to a Reaction object.
-    const reaction_map = new Map<string, Reaction>();
-
-    for (const raw_reaction of raw_reactions) {
-        if (!reaction_map.has(raw_reaction.emoji_name)) {
-            const reaction: Reaction = {
-                emoji_code: raw_reaction.emoji_code,
-                emoji_name: raw_reaction.emoji_name,
-                user_ids: new Set<number>([raw_reaction.user_id]),
-                message_id: message_id,
-            };
-            reaction_map.set(raw_reaction.emoji_name, reaction);
-        } else {
-            reaction_map
-                .get(raw_reaction.emoji_name)!
-                .user_ids.add(raw_reaction.user_id);
-        }
-    }
-    return [...reaction_map.values()];
-}
-
 export async function fetch_model_data(): Promise<Database> {
     console.log("start fetch");
 
@@ -90,61 +60,10 @@ export async function fetch_model_data(): Promise<Database> {
     }
 
     const topic_map = new TopicMap();
+    const message_map = new Map<number, Message>();
+    const message_index = new MessageIndex();
 
-    const rows = await zulip_client.get_messages(BATCH_SIZE);
-
-    const messages: Message[] = rows
-        .filter((row: any) => row.type === "stream")
-        .map((row: any) => {
-            const local_message_id = undefined; // is only in events
-
-            const topic = topic_map.get_or_make_topic_for(
-                row.stream_id,
-                row.subject,
-            );
-            const unread =
-                row.flags.find((flag: string) => flag === "read") === undefined;
-
-            const reactions = convert_server_reactions(row.reactions, row.id);
-
-            const message: Message = {
-                code_snippets: [],
-                content: row.content,
-                github_refs: [],
-                id: row.id,
-                is_super_new: false,
-                local_message_id,
-                sender_id: row.sender_id,
-                stream_id: row.stream_id,
-                timestamp: row.timestamp,
-                topic_id: topic.topic_id,
-                type: row.type,
-                reactions,
-                unread,
-            };
-            parse.parse_content(message);
-            return message;
-        });
-
-    for (const row of rows) {
-        if (!user_map.has(row.sender_id)) {
-            const id = row.sender_id;
-            const email = row.sender_email;
-            const full_name = row.sender_full_name;
-            const user = { id, email, full_name };
-            user_map.set(id, user);
-        }
-    }
-
-    const message_map = new Map(
-        messages.map((message) => [message.id, message]),
-    );
-
-    console.log(`${message_map.size} messages fetched!`);
-
-    const message_index = new MessageIndex(message_map);
-
-    return {
+    const db = {
         current_user_id,
         user_map,
         channel_map,
@@ -152,4 +71,8 @@ export async function fetch_model_data(): Promise<Database> {
         message_map,
         message_index,
     };
+
+    await message_fetch.fetch_initial_messages(db);
+
+    return db;
 }

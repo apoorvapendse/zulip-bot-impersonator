@@ -1,4 +1,3 @@
-import type { MessageMap } from "./database";
 import type { Message } from "./db_types";
 
 type Item = {
@@ -11,14 +10,8 @@ export class MessageIndex {
     // indexes (so 2 slots per message)
     ids: number[];
 
-    constructor(message_map: MessageMap) {
+    constructor() {
         this.ids = [];
-
-        for (const message of message_map.values()) {
-            const message_id = message.id;
-            const topic_id = message.topic_id;
-            this.add_item({ message_id, topic_id });
-        }
     }
 
     add_item(item: Item): void {

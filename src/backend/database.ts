@@ -9,6 +9,7 @@ import { TopicMap } from "./topic_map";
 export let DB: Database;
 
 export type MessageMap = Map<number, Message>;
+export type UserMap = Map<number, User>;
 
 export type Database = {
     current_user_id: number;

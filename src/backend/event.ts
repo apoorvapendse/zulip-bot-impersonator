@@ -1,7 +1,6 @@
 import type { Message } from "./db_types";
 
 import { DB } from "./database";
-import * as fetch from "./fetch";
 import * as parse from "./parse";
 
 export const enum EventFlavor {
@@ -89,10 +88,7 @@ function build_event(raw_event: any): ZulipEvent | undefined {
                     id: raw_message.id,
                     is_super_new: true,
                     local_message_id,
-                    reactions: fetch.convert_server_reactions(
-                        raw_message.reactions,
-                        raw_message.id,
-                    ),
+                    reactions: [], // new messages don't have reactions yet
                     sender_id: raw_message.sender_id,
                     stream_id: raw_message.stream_id,
                     timestamp: raw_message.timestamp,
