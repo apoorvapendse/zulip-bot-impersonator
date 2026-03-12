@@ -6,18 +6,6 @@ export type Filter = {
     predicate: Predicate;
 };
 
-export function topic_filter(topic_id: number): Filter {
-    function predicate(message: Message): boolean {
-        if (message.type === "stream") {
-            return message.topic_id === topic_id;
-        } else {
-            return false;
-        }
-    }
-
-    return { predicate };
-}
-
 export function stream_filter(stream_id: number): Filter {
     function predicate(message: Message): boolean {
         if (message.type === "stream") {

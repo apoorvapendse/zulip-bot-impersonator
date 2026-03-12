@@ -46,6 +46,18 @@ export function stream_name_for(stream_id: number): string {
 
 // TOPICS
 
+export function message_for_topic(topic_id: number): Message[] {
+    DB.message_index.find_message_ids_for_topic_id(topic_id);
+    const result = [];
+    for (const message of DB.message_map.values()) {
+        if (message.topic_id === topic_id) {
+            result.push(message);
+        }
+    }
+    result.sort((m1, m2) => m1.id - m2.id);
+    return result;
+}
+
 export function get_topic_rows(stream_id: number): TopicRow[] {
     function predicate(message: Message) {
         return message.stream_id === stream_id;

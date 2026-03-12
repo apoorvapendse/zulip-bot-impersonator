@@ -6,7 +6,6 @@ import { get_dom_parser } from "../parser";
 
 import { DB } from "./database";
 import { EventFlavor } from "./event";
-import { topic_filter } from "./filter";
 import * as model from "./model";
 import * as zulip_client from "./zulip_client";
 
@@ -72,10 +71,7 @@ export class NetworkHelper {
             return [];
         }
 
-        const filter = topic_filter(topic_id);
-        const messages = model.filtered_messages(filter);
-
-        messages.sort((m1, m2) => m1.id - m2.id);
+        const messages = model.message_for_topic(topic_id);
 
         const rows = [];
 
@@ -101,10 +97,7 @@ export class NetworkHelper {
         const topic_name = `__${category}_${key}__`;
         const topic_id = DB.topic_map.get_topic_id(channel_id, topic_name);
 
-        const filter = topic_filter(topic_id);
-        const messages = model.filtered_messages(filter);
-
-        messages.sort((m1, m2) => m1.id - m2.id);
+        const messages = model.message_for_topic(topic_id);
 
         if (messages.length === 0) {
             return undefined;

@@ -1,4 +1,5 @@
-import { topic_filter } from "./backend/filter";
+import type { Filter } from "./backend/filter";
+
 import type { TopicRow } from "./row_types";
 
 import * as model from "./backend/model";
@@ -15,10 +16,16 @@ export class MessagePane {
         const div = document.createElement("div");
 
         const topic_line = new MessageViewHeader(topic_row);
-
         const topic_id = topic_row.topic_id();
-        const filter = topic_filter(topic_id);
-        const messages = model.filtered_messages(filter);
+
+        const messages = model.message_for_topic(topic_id);
+
+        const filter: Filter = {
+            predicate(message) {
+                return message.topic_id === topic_id;
+            },
+        };
+
         const max_width = 500;
 
         const message_list = new MessageList({

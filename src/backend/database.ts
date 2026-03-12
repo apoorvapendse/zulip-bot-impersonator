@@ -1,5 +1,6 @@
-import type { ZulipEvent } from "./event";
 import type { User, Stream, Message } from "./db_types";
+import type { ZulipEvent } from "./event";
+import type { MessageIndex } from "./message_index";
 
 import { EventFlavor } from "./event";
 import * as fetch from "./fetch";
@@ -7,12 +8,15 @@ import { TopicMap } from "./topic_map";
 
 export let DB: Database;
 
+export type MessageMap = Map<number, Message>;
+
 export type Database = {
     current_user_id: number;
     user_map: Map<number, User>;
     channel_map: Map<number, Stream>;
     topic_map: TopicMap;
-    message_map: Map<number, Message>;
+    message_map: MessageMap;
+    message_index: MessageIndex;
 };
 
 export async function fetch_original_data(): Promise<void> {

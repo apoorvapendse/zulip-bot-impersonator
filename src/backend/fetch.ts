@@ -2,6 +2,7 @@ import type { Message, Reaction, Stream, User } from "./db_types";
 
 import * as config from "../config";
 import { Database } from "./database";
+import { MessageIndex } from "./message_index";
 import { TopicMap } from "./topic_map";
 import * as parse from "./parse";
 import * as zulip_client from "./zulip_client";
@@ -141,11 +142,14 @@ export async function fetch_model_data(): Promise<Database> {
 
     console.log(`${message_map.size} messages fetched!`);
 
+    const message_index = new MessageIndex(message_map);
+
     return {
         current_user_id,
         user_map,
         channel_map,
         topic_map,
         message_map,
+        message_index,
     };
 }
