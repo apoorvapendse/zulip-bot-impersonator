@@ -4,7 +4,7 @@ import type { Message, Reaction } from "./db_types";
 import * as parse from "./parse";
 import * as zulip_client from "./zulip_client";
 
-const INITIAL_BATCH_SIZE = 200;
+const INITIAL_BATCH_SIZE = 2000;
 
 export function convert_server_reactions(
     reactions: any[],
