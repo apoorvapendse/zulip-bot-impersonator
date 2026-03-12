@@ -63,9 +63,10 @@ enum CompleteTurnResult {
 }
 
 enum GameEventType {
-    PLAYER_ACTION,
-    MAYBE_COMPLETE_TURN,
     ADVANCE_TURN,
+    MAYBE_COMPLETE_TURN,
+    PLAYER_ACTION,
+    UNDO,
 }
 
 export type JsonCard = {
@@ -1381,24 +1382,33 @@ class GameEventTrackerSingleton {
 
     handle_initial_events(json_game_events: JsonGameEvent[]): void {
         for (const json_game_event of json_game_events) {
-            this.json_game_events.push(json_game_event);
+            const game_event = GameEvent.from_json(json_game_event);
+            this.play_game_event(game_event);
+            if (game_event.type !== GameEventType.UNDO) {
+                this.json_game_events.push(json_game_event);
+            }
         }
-
-        this.replay();
     }
 
-    push_event(game_event: GameEvent) {
-        const webxdc = this.webxdc;
-
+    push_event(game_event: GameEvent): void {
         if (!this.replay_in_progress) {
             const json_game_event = game_event.toJSON();
-
             this.json_game_events.push(json_game_event);
-
-            const addr = webxdc.selfAddr;
-            const event_row = { json_game_event, addr };
-            webxdc.sendUpdate({ payload: event_row });
+            this.broadcast_game_event(game_event);
         }
+    }
+
+    broadcast_game_event(game_event: GameEvent): void {
+        const webxdc = this.webxdc;
+        const addr = webxdc.selfAddr;
+        const json_game_event = game_event.toJSON();
+        const event_row = { json_game_event, addr };
+        webxdc.sendUpdate({ payload: event_row });
+    }
+
+    broadcast_undo_event(): void {
+        const game_event = new GameEvent(GameEventType.UNDO);
+        this.broadcast_game_event(game_event);
     }
 
     pop_player_action(): PlayerAction | undefined {
@@ -1434,10 +1444,30 @@ class GameEventTrackerSingleton {
             case GameEventType.ADVANCE_TURN:
                 TheGame.advance_turn_to_next_player();
                 break;
+
+            case GameEventType.UNDO:
+                // We only use this code path in the multi-player
+                // scenario. When a user undoes her own actions,
+                // we call undo_last_player_action directly. When
+                // we run the replay feature, there should never be
+                // undo events in the stack, because we never push
+                // them.
+                this.undo_last_player_action();
+                break;
         }
 
         PlayerArea.populate();
         BoardArea.populate();
+    }
+
+    undo_last_player_action(): void {
+        const player_action = this.pop_player_action();
+        if (!player_action) {
+            console.error("could not find player action to undo!");
+            return;
+        }
+
+        TheGame.reverse_player_action(player_action);
     }
 
     replay(): void {
@@ -2570,17 +2600,12 @@ class EventManagerSingleton {
     }
 
     undo_mistakes(): void {
-        const player_action = GameEventTracker.pop_player_action();
-        if (!player_action) {
-            console.error("could not find player action to undo!");
-            return;
-        }
+        GameEventTracker.broadcast_undo_event();
+        GameEventTracker.undo_last_player_action();
 
-        TheGame.reverse_player_action(player_action);
         PlayerArea.populate();
         BoardArea.populate();
 
-        // TODO: pop last event off stack and run it in reverse
         if (CurrentBoard.is_clean()) {
             StatusBar.celebrate("You are back with a clean board!");
         } else {
