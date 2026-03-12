@@ -1235,16 +1235,11 @@ class Game {
     }
 
     advance_turn_to_next_player(): void {
-        GameEventTracker.push_event(new GameEvent(GameEventType.ADVANCE_TURN));
         CurrentBoard.age_cards();
         PlayerGroup.advance_turn();
     }
 
     maybe_complete_turn(): CompleteTurnResult {
-        GameEventTracker.push_event(
-            new GameEvent(GameEventType.MAYBE_COMPLETE_TURN),
-        );
-
         // We return failure so that Angry Cat can complain
         // about the dirty board.
         if (!CurrentBoard.is_clean()) return CompleteTurnResult.FAILURE;
@@ -1255,12 +1250,6 @@ class Game {
     }
 
     process_player_action(player_action: PlayerAction): void {
-        const game_event = new GameEvent(
-            GameEventType.PLAYER_ACTION,
-            player_action,
-        );
-        GameEventTracker.push_event(game_event);
-
         CurrentBoard.process_event(player_action.board_event);
 
         for (const hand_card of player_action.hand_cards_to_release) {
@@ -2459,6 +2448,9 @@ class EventManagerSingleton {
     maybe_complete_turn(): void {
         const self = this;
 
+        GameEventTracker.push_event(
+            new GameEvent(GameEventType.MAYBE_COMPLETE_TURN),
+        );
         const turn_result = TheGame.maybe_complete_turn();
 
         PlayerArea.populate();
@@ -2567,6 +2559,7 @@ class EventManagerSingleton {
     }
 
     advance_turn() {
+        GameEventTracker.push_event(new GameEvent(GameEventType.ADVANCE_TURN));
         TheGame.advance_turn_to_next_player();
 
         DragDropHelper.reset_internal_data_structures();
@@ -2595,20 +2588,28 @@ class EventManagerSingleton {
         }
     }
 
-    split_stack(player_action: PlayerAction): void {
+    process_and_push_player_action(player_action: PlayerAction): void {
+        GameEventTracker.push_event(
+            new GameEvent(GameEventType.PLAYER_ACTION, player_action),
+        );
+
         TheGame.process_player_action(player_action);
+    }
+
+    split_stack(player_action: PlayerAction): void {
+        this.process_and_push_player_action(player_action);
         StatusBar.scold(
             "Be careful with splitting! Splits only pay off when you get more cards on the board or make prettier piles.",
         );
     }
 
     place_hand_card_on_board(player_action: PlayerAction): void {
-        TheGame.process_player_action(player_action);
+        this.process_and_push_player_action(player_action);
         StatusBar.inform("On the board!");
     }
 
     move_stack(player_action: PlayerAction): void {
-        TheGame.process_player_action(player_action);
+        this.process_and_push_player_action(player_action);
         StatusBar.inform("Moved!");
     }
 
@@ -2616,7 +2617,7 @@ class EventManagerSingleton {
     // and dragging hand cards to an existing board stack.
 
     process_merge(player_action: PlayerAction): void {
-        TheGame.process_player_action(player_action);
+        this.process_and_push_player_action(player_action);
 
         const merged_stack = player_action.board_event.stacks_to_add[0];
         const size = merged_stack.size();
