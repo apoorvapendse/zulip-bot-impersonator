@@ -1,11 +1,14 @@
 import type { MessageMap } from "./database";
+import type { Message } from "./db_types";
 
 type Item = {
-    message_id: number;
     topic_id: number;
+    message_id: number;
 };
 
 export class MessageIndex {
+    // we store topic_id and message_id in consecutive
+    // indexes (so 2 slots per message)
     ids: number[];
 
     constructor(message_map: MessageMap) {
@@ -16,8 +19,6 @@ export class MessageIndex {
             const topic_id = message.topic_id;
             this.add_item({ message_id, topic_id });
         }
-
-        this.fake_large();
     }
 
     add_item(item: Item): void {
@@ -25,11 +26,12 @@ export class MessageIndex {
         this.ids.push(item.message_id);
     }
 
-    find_message_ids_for_topic_id(topic_id: number): number[] {
-        console.log("start find");
-        const t = performance.now();
-        let elapsed;
+    add_message(message: Message): void {
+        this.ids.push(message.topic_id);
+        this.ids.push(message.id);
+    }
 
+    candidate_message_ids_for_topic_id(topic_id: number): Set<number> {
         const ids = this.ids;
         const size = this.ids.length;
         const message_ids = [];
@@ -40,14 +42,11 @@ export class MessageIndex {
             }
         }
 
-        elapsed = performance.now() - t;
-        console.log("time to find", elapsed.toFixed(6));
-
-        console.log(message_ids);
-        return message_ids;
+        return new Set(message_ids);
     }
 
     fake_large(): void {
+        // for testing
         let message_id = 1000;
         const max_size = 1_000_000;
         const ids = this.ids;

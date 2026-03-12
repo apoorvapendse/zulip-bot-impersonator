@@ -34,6 +34,7 @@ export function handle_event(event: ZulipEvent): void {
         mutate_messages(event.message_ids, (message) => {
             message.stream_id = event.new_channel_id;
             message.topic_id = event.new_topic_id;
+            DB.message_index.add_message(message);
         });
     }
 
@@ -82,6 +83,7 @@ export function handle_event(event: ZulipEvent): void {
 }
 
 function add_message_to_cache(message: Message) {
+    DB.message_index.add_message(message);
     DB.message_map.set(message.id, message);
 }
 
