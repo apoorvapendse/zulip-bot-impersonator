@@ -4,20 +4,37 @@ import type { Message } from "./db_types";
 import * as parse from "./parse";
 import * as zulip_client from "./zulip_client";
 
+type ServerMessage = {
+    content: string;
+    flags: string[];
+    id: number;
+    reactions: any[];
+    sender_email: string;
+    sender_full_name: string;
+    sender_id: number;
+    stream_id: number;
+    subject: string;
+    timestamp: number;
+    type: "stream";
+};
+
 const INITIAL_BATCH_SIZE = 2000;
 
 export async function fetch_initial_messages(db: Database): Promise<void> {
-    const { message_map, topic_map, user_map, message_index, reactions_map } =
-        db;
-
     const rows = await zulip_client.get_messages(INITIAL_BATCH_SIZE);
 
+    await process_message_rows_from_server(db, rows);
+
+    console.log(`${db.message_map.size} messages fetched!`);
+}
+
+async function process_message_rows_from_server(db: Database, rows: ServerMessage[]): Promise<void> {
     const messages: Message[] = rows
-        .filter((row: any) => row.type === "stream")
-        .map((row: any) => {
+        .filter((row) => row.type === "stream")
+        .map((row) => {
             const local_message_id = undefined; // is only in events
 
-            const topic = topic_map.get_or_make_topic_for(
+            const topic = db.topic_map.get_or_make_topic_for(
                 row.stream_id,
                 row.subject,
             );
@@ -42,25 +59,23 @@ export async function fetch_initial_messages(db: Database): Promise<void> {
             };
 
             parse.parse_content(message);
-            reactions_map.add_server_reactions(row.reactions, message_id);
+            db.reactions_map.add_server_reactions(row.reactions, message_id);
 
             return message;
         });
 
     for (const row of rows) {
-        if (!user_map.has(row.sender_id)) {
+        if (!db.user_map.has(row.sender_id)) {
             const id = row.sender_id;
             const email = row.sender_email;
             const full_name = row.sender_full_name;
             const user = { id, email, full_name };
-            user_map.set(id, user);
+            db.user_map.set(id, user);
         }
     }
 
     for (const message of messages) {
-        message_index.add_message(message);
-        message_map.set(message.id, message);
+        db.message_index.add_message(message);
+        db.message_map.set(message.id, message);
     }
-
-    console.log(`${message_map.size} messages fetched!`);
 }
