@@ -61,6 +61,12 @@ class TextArea {
 
             // Only load the first for now.
             const file = files[0];
+
+            if (!file) {
+                // Do normal paste behavior.
+                return;
+            }
+
             async function add_upload_link() {
                 self.insert_text(`[${file.name}]` + "(");
                 const url = await zulip_client.upload_file(file);
